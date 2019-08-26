@@ -1,0 +1,200 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Threading.Tasks.Sources;
+
+namespace ValueTaskSupplement
+{
+    public static partial class ValueTaskEx
+    {
+<# for(var i = 1; i <= 15; i++ ) {
+    var range = Enumerable.Range(0, i + 1);
+    var t = string.Join(", ", range.Select(x => "T" + x));
+    var ttuple = string.Join(", ", range.Select(x => $"(bool hasResult, T{x} result{x})"));
+    var args = string.Join(", ", range.Select(x => $"ValueTask<T{x}> task{x}"));
+    var targs = string.Join(", ", range.Select(x => $"task{x}"));
+    var tresultTuple = string.Join(", ", range.Select(x => $"(i == {x}, t{x})"));
+#>
+        public static ValueTask<(int winArgumentIndex, <#= ttuple #>)> WhenAny<<#= t #>>(<#= args #>)
+        {
+            return new ValueTask<(int winArgumentIndex, <#= ttuple #>)>(new WhenAnyPromise<<#= t #>>(<#= targs #>), 0);
+        }
+
+        class WhenAnyPromise<<#= t #>> : IValueTaskSource<(int winArgumentIndex, <#= ttuple #>)>
+        {
+            static readonly ContextCallback execContextCallback = ExecutionContextCallback;
+            static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
+
+<# for(var j = 0; j <= i; j++) { #>
+            T<#= j #> t<#= j #> = default(T<#= j #>);
+<# } #>
+<# for(var j = 0; j <= i; j++) { #>
+            ValueTaskAwaiter<T<#= j #>> awaiter<#= j #>;
+<# } #>
+
+            int completedCount = 0;
+            int winArgumentIndex = -1;
+            ExceptionDispatchInfo exception;
+            Action<object> continuation = ContinuationSentinel.AvailableContinuation;
+            object state;
+            SynchronizationContext syncContext;
+            ExecutionContext execContext;
+
+            public WhenAnyPromise(<#= args #>)
+            {
+<# for(var j = 0; j <= i; j++) { #>
+                {
+                    var awaiter = task<#= j #>.GetAwaiter();
+                    if (awaiter.IsCompleted)
+                    {
+                        try
+                        {
+                            t<#= j #> = awaiter.GetResult();
+                            TryInvokeContinuationWithIncrement(<#= j #>);
+                            return;
+                        }
+                        catch (Exception ex)
+                        {
+                            exception = ExceptionDispatchInfo.Capture(ex);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        awaiter<#= j #> = awaiter;
+                        awaiter.UnsafeOnCompleted(ContinuationT<#= j #>);
+                    }
+                }
+<# } #>
+            }
+
+<# for(var j = 0; j <= i; j++) { #>
+            void ContinuationT<#= j #>()
+            {
+                try
+                {
+                    t<#= j #> = awaiter<#= j #>.GetResult();
+                }
+                catch (Exception ex)
+                {
+                    exception = ExceptionDispatchInfo.Capture(ex);
+                    TryInvokeContinuation();
+                    return;
+                }
+                TryInvokeContinuationWithIncrement(<#= j #>);
+            }
+
+<# } #>
+
+            void TryInvokeContinuationWithIncrement(int index)
+            {
+                if (Interlocked.Increment(ref completedCount) == 1)
+                {
+                    Volatile.Write(ref winArgumentIndex, index);
+                    TryInvokeContinuation();
+                }
+            }
+
+            void TryInvokeContinuation()
+            {
+                var c = Interlocked.Exchange(ref continuation, ContinuationSentinel.CompletedContinuation);
+                if (c != ContinuationSentinel.AvailableContinuation && c != ContinuationSentinel.CompletedContinuation)
+                {
+                    var spinWait = new SpinWait();
+                    while (state == null) // worst case, state is not set yet so wait.
+                    {
+                        spinWait.SpinOnce();
+                    }
+
+                    if (execContext != null)
+                    {
+                        ExecutionContext.Run(execContext, execContextCallback, Tuple.Create(c, this));
+                    }
+                    else if (syncContext != null)
+                    {
+                        syncContext.Post(syncContextCallback, Tuple.Create(c, this));
+                    }
+                    else
+                    {
+                        c(state);
+                    }
+                }
+            }
+
+            public (int winArgumentIndex, <#= ttuple #>) GetResult(short token)
+            {
+                if (exception != null)
+                {
+                    exception.Throw();
+                }
+                var i = this.winArgumentIndex;
+                return (winArgumentIndex, <#= tresultTuple #>);
+            }
+
+            public ValueTaskSourceStatus GetStatus(short token)
+            {
+                return (Volatile.Read(ref winArgumentIndex) != -1) ? ValueTaskSourceStatus.Succeeded
+                    : (exception != null) ? ((exception.SourceException is OperationCanceledException) ? ValueTaskSourceStatus.Canceled : ValueTaskSourceStatus.Faulted)
+                    : ValueTaskSourceStatus.Pending;
+            }
+
+            public void OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+            {
+                if (Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation) != ContinuationSentinel.AvailableContinuation)
+                {
+                    throw new InvalidOperationException("does not allow multiple await.");
+                }
+
+                this.state = state;
+                if ((flags & ValueTaskSourceOnCompletedFlags.FlowExecutionContext) == ValueTaskSourceOnCompletedFlags.FlowExecutionContext)
+                {
+                    execContext = ExecutionContext.Capture();
+                }
+                if ((flags & ValueTaskSourceOnCompletedFlags.UseSchedulingContext) == ValueTaskSourceOnCompletedFlags.UseSchedulingContext)
+                {
+                    syncContext = SynchronizationContext.Current;
+                }
+
+                if (GetStatus(token) != ValueTaskSourceStatus.Pending)
+                {
+                    TryInvokeContinuation();
+                }
+            }
+
+            static void ExecutionContextCallback(object state)
+            {
+                var t = (Tuple<Action<object>, WhenAnyPromise<<#= t #>>>)state;
+                var self = t.Item2;
+                if (self.syncContext != null)
+                {
+                    SynchronizationContextCallback(state);
+                }
+                else
+                {
+                    var invokeState = self.state;
+                    self.state = null;
+                    t.Item1.Invoke(invokeState);
+                }
+            }
+
+            static void SynchronizationContextCallback(object state)
+            {
+                var t = (Tuple<Action<object>, WhenAnyPromise<<#= t #>>>)state;
+                var self = t.Item2;
+                var invokeState = self.state;
+                self.state = null;
+                t.Item1.Invoke(invokeState);
+            }
+        }
+
+<# } #>
+    }
+}
