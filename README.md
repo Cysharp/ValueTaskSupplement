@@ -49,6 +49,16 @@ public static ValueTask<(T0, T1)> WhenAll<T0, T1>(ValueTask<T0> task0, ValueTask
 public static ValueTask<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)> WhenAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8, ValueTask<T9> task9, ValueTask<T10> task10, ValueTask<T11> task11, ValueTask<T12> task12, ValueTask<T13> task13, ValueTask<T14> task14, ValueTask<T15> task15)
 ```
 
+`IEnumerable<ValueTask<T>>` and `(ValueTask<T0>, ValueTask<T1>, ...)` can await directly.
+
+```csharp
+using ValueTaskSupplement;
+
+// same as ValueTaskEx.WhenAll(new []{ }), ValueTaskEx.WhenAll(A, B, C)
+var result = await new[] { LoadAsyncA(), LoadAsyncB(), LoadAsyncC() };
+var (x, y, z) = await (LoadAsyncA(), LoadAsyncB(), LoadAsyncC());
+```
+
 WhenAny
 ---
 

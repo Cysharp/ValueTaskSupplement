@@ -35,6 +35,10 @@
             <Generator>TextTemplatingFileGenerator</Generator>
             <LastGenOutput>ValueTaskEx.WhenAny.cs</LastGenOutput>
         </None>
+        <None Update="ValueTaskWhenAllExtensions.tt">
+          <Generator>TextTemplatingFileGenerator</Generator>
+          <LastGenOutput>ValueTaskWhenAllExtensions.cs</LastGenOutput>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
@@ -47,6 +51,11 @@
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
             <DependentUpon>ValueTaskEx.WhenAny.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ValueTaskWhenAllExtensions.cs">
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>ValueTaskWhenAllExtensions.tt</DependentUpon>
         </Compile>
     </ItemGroup>
 

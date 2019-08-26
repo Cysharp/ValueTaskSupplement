@@ -15,6 +15,11 @@ namespace ValueTaskSupplement
             return new ValueTask<T[]>(new WhenAllPromiseAll<T>(tasks), 0);
         }
 
+        public static ValueTaskAwaiter<T[]> GetAwaiter<T>(this IEnumerable<ValueTask<T>> tasks)
+        {
+            return WhenAll(tasks).GetAwaiter();
+        }
+
         class WhenAllPromiseAll<T> : IValueTaskSource<T[]>
         {
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;

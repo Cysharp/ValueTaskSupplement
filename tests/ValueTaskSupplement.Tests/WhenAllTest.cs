@@ -39,6 +39,19 @@ namespace ValueTaskSupplement.Tests
             result.Should().BeEquivalentTo(new[] { 1, 2, 3 });
         }
 
+        [Fact]
+        public async Task Extension()
+        {
+            var result = await new[] { CreateAsync(1), CreateAsync(2), CreateAsync(3) };
+            result[0].Should().Be(1);
+            result[1].Should().Be(2);
+            result[2].Should().Be(3);
+
+            var (x, y) = await (CreateAsync(10), CreateAsync(99));
+            x.Should().Be(10);
+            y.Should().Be(99);
+        }
+
         ValueTask<int> CreateSync(int i)
         {
             return new ValueTask<int>(i);
