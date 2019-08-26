@@ -10,6 +10,11 @@ namespace ValueTaskSupplement
 {
     public static partial class ValueTaskEx
     {
+        public static ValueTask<int> WhenAny(ValueTask left, Task right)
+        {
+            return new ValueTask<int>(new WhenAnyPromise2(left, new ValueTask(right)), 0);
+        }
+
         public static ValueTask<int> WhenAny(IEnumerable<ValueTask> tasks)
         {
             return new ValueTask<int>(new WhenAnyPromiseAll(tasks), 0);
