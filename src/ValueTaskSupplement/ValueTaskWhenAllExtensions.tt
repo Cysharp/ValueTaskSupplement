@@ -6,11 +6,16 @@
 <#@ output extension=".cs" #>
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
+using System.Collections.Generic;
 
 namespace ValueTaskSupplement
 {
     public static class ValueTaskWhenAllExtensions
     {
+        public static ValueTaskAwaiter<T[]> GetAwaiter<T>(this IEnumerable<ValueTask<T>> tasks)
+        {
+            return ValueTaskEx.WhenAll(tasks).GetAwaiter();
+        }
 <# for(var i = 1; i <= 15; i++) { 
     var range = Enumerable.Range(0, i + 1);
     var t = string.Join(", ", range.Select(x => "T" + x));

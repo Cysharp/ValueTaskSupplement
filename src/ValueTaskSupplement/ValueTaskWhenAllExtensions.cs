@@ -1,10 +1,15 @@
 ﻿using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
+using System.Collections.Generic;
 
 namespace ValueTaskSupplement
 {
     public static class ValueTaskWhenAllExtensions
     {
+        public static ValueTaskAwaiter<T[]> GetAwaiter<T>(this IEnumerable<ValueTask<T>> tasks)
+        {
+            return ValueTaskEx.WhenAll(tasks).GetAwaiter();
+        }
 
         public static ValueTaskAwaiter<(T0, T1)> GetAwaiter<T0, T1>(this (ValueTask<T0> task0, ValueTask<T1> task1) tasks)
         {
