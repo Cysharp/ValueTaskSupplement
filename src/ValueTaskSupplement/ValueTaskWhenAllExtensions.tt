@@ -12,6 +12,7 @@ namespace ValueTaskSupplement
 {
     public static class ValueTaskWhenAllExtensions
     {
+        #region Generics
         public static ValueTaskAwaiter<T[]> GetAwaiter<T>(this IEnumerable<ValueTask<T>> tasks)
         {
             return ValueTaskEx.WhenAll(tasks).GetAwaiter();
@@ -28,5 +29,24 @@ namespace ValueTaskSupplement
             return ValueTaskEx.WhenAll(<#= itemx #>).GetAwaiter();
         }
 <# }#>
+        #endregion
+
+        #region Non Generics
+        public static ValueTaskAwaiter GetAwaiter(this IEnumerable<ValueTask> tasks)
+        {
+            return ValueTaskEx.WhenAll(tasks).GetAwaiter();
+        }
+<# for(var i = 1; i <= 15; i++) { 
+    var range = Enumerable.Range(0, i + 1);
+    var args = string.Join(", ", range.Select(x => $"ValueTask task{x}"));
+    var itemx = string.Join(", ", range.Select(x => $"tasks.Item{x + 1}"));
+#>
+
+        public static ValueTaskAwaiter GetAwaiter(this (<#= args #>) tasks)
+        {
+            return ValueTaskEx.WhenAll(<#= itemx #>).GetAwaiter();
+        }
+<# }#>
+        #endregion
     }
 }

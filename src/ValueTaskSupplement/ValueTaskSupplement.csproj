@@ -28,12 +28,20 @@
 
     <ItemGroup>
         <None Update="ValueTaskEx.WhenAll.tt">
-            <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>ValueTaskEx.WhenAll.cs</LastGenOutput>
+          <Generator>TextTemplatingFileGenerator</Generator>
+          <LastGenOutput>ValueTaskEx.WhenAll.cs</LastGenOutput>
+        </None>
+        <None Update="ValueTaskEx.WhenAll_NonGenerics.tt">
+          <LastGenOutput>ValueTaskEx.WhenAll_NonGenerics.cs</LastGenOutput>
+          <Generator>TextTemplatingFileGenerator</Generator>
         </None>
         <None Update="ValueTaskEx.WhenAny.tt">
-            <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>ValueTaskEx.WhenAny.cs</LastGenOutput>
+          <Generator>TextTemplatingFileGenerator</Generator>
+          <LastGenOutput>ValueTaskEx.WhenAny.cs</LastGenOutput>
+        </None>
+        <None Update="ValueTaskEx.WhenAny_NonGenerics.tt">
+          <LastGenOutput>ValueTaskEx.WhenAny_NonGenerics.cs</LastGenOutput>
+          <Generator>TextTemplatingFileGenerator</Generator>
         </None>
         <None Update="ValueTaskWhenAllExtensions.tt">
           <Generator>TextTemplatingFileGenerator</Generator>
@@ -43,14 +51,24 @@
 
     <ItemGroup>
         <Compile Update="ValueTaskEx.WhenAll.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>ValueTaskEx.WhenAll.tt</DependentUpon>
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>ValueTaskEx.WhenAll.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ValueTaskEx.WhenAll_NonGenerics.cs">
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>ValueTaskEx.WhenAll_NonGenerics.tt</DependentUpon>
         </Compile>
         <Compile Update="ValueTaskEx.WhenAny.cs">
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>ValueTaskEx.WhenAny.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ValueTaskEx.WhenAny_NonGenerics.cs">
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
-            <DependentUpon>ValueTaskEx.WhenAny.tt</DependentUpon>
+            <DependentUpon>ValueTaskEx.WhenAny_NonGenerics.tt</DependentUpon>
         </Compile>
         <Compile Update="ValueTaskWhenAllExtensions.cs">
           <DesignTime>True</DesignTime>

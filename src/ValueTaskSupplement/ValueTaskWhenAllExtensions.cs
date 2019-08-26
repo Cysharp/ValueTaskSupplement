@@ -6,6 +6,7 @@ namespace ValueTaskSupplement
 {
     public static class ValueTaskWhenAllExtensions
     {
+        #region Generics
         public static ValueTaskAwaiter<T[]> GetAwaiter<T>(this IEnumerable<ValueTask<T>> tasks)
         {
             return ValueTaskEx.WhenAll(tasks).GetAwaiter();
@@ -85,5 +86,88 @@ namespace ValueTaskSupplement
         {
             return ValueTaskEx.WhenAll(tasks.Item1, tasks.Item2, tasks.Item3, tasks.Item4, tasks.Item5, tasks.Item6, tasks.Item7, tasks.Item8, tasks.Item9, tasks.Item10, tasks.Item11, tasks.Item12, tasks.Item13, tasks.Item14, tasks.Item15, tasks.Item16).GetAwaiter();
         }
+        #endregion
+
+        #region Non Generics
+        public static ValueTaskAwaiter GetAwaiter(this IEnumerable<ValueTask> tasks)
+        {
+            return ValueTaskEx.WhenAll(tasks).GetAwaiter();
+        }
+
+        public static ValueTaskAwaiter GetAwaiter(this (ValueTask task0, ValueTask task1) tasks)
+        {
+            return ValueTaskEx.WhenAll(tasks.Item1, tasks.Item2).GetAwaiter();
+        }
+
+        public static ValueTaskAwaiter GetAwaiter(this (ValueTask task0, ValueTask task1, ValueTask task2) tasks)
+        {
+            return ValueTaskEx.WhenAll(tasks.Item1, tasks.Item2, tasks.Item3).GetAwaiter();
+        }
+
+        public static ValueTaskAwaiter GetAwaiter(this (ValueTask task0, ValueTask task1, ValueTask task2, ValueTask task3) tasks)
+        {
+            return ValueTaskEx.WhenAll(tasks.Item1, tasks.Item2, tasks.Item3, tasks.Item4).GetAwaiter();
+        }
+
+        public static ValueTaskAwaiter GetAwaiter(this (ValueTask task0, ValueTask task1, ValueTask task2, ValueTask task3, ValueTask task4) tasks)
+        {
+            return ValueTaskEx.WhenAll(tasks.Item1, tasks.Item2, tasks.Item3, tasks.Item4, tasks.Item5).GetAwaiter();
+        }
+
+        public static ValueTaskAwaiter GetAwaiter(this (ValueTask task0, ValueTask task1, ValueTask task2, ValueTask task3, ValueTask task4, ValueTask task5) tasks)
+        {
+            return ValueTaskEx.WhenAll(tasks.Item1, tasks.Item2, tasks.Item3, tasks.Item4, tasks.Item5, tasks.Item6).GetAwaiter();
+        }
+
+        public static ValueTaskAwaiter GetAwaiter(this (ValueTask task0, ValueTask task1, ValueTask task2, ValueTask task3, ValueTask task4, ValueTask task5, ValueTask task6) tasks)
+        {
+            return ValueTaskEx.WhenAll(tasks.Item1, tasks.Item2, tasks.Item3, tasks.Item4, tasks.Item5, tasks.Item6, tasks.Item7).GetAwaiter();
+        }
+
+        public static ValueTaskAwaiter GetAwaiter(this (ValueTask task0, ValueTask task1, ValueTask task2, ValueTask task3, ValueTask task4, ValueTask task5, ValueTask task6, ValueTask task7) tasks)
+        {
+            return ValueTaskEx.WhenAll(tasks.Item1, tasks.Item2, tasks.Item3, tasks.Item4, tasks.Item5, tasks.Item6, tasks.Item7, tasks.Item8).GetAwaiter();
+        }
+
+        public static ValueTaskAwaiter GetAwaiter(this (ValueTask task0, ValueTask task1, ValueTask task2, ValueTask task3, ValueTask task4, ValueTask task5, ValueTask task6, ValueTask task7, ValueTask task8) tasks)
+        {
+            return ValueTaskEx.WhenAll(tasks.Item1, tasks.Item2, tasks.Item3, tasks.Item4, tasks.Item5, tasks.Item6, tasks.Item7, tasks.Item8, tasks.Item9).GetAwaiter();
+        }
+
+        public static ValueTaskAwaiter GetAwaiter(this (ValueTask task0, ValueTask task1, ValueTask task2, ValueTask task3, ValueTask task4, ValueTask task5, ValueTask task6, ValueTask task7, ValueTask task8, ValueTask task9) tasks)
+        {
+            return ValueTaskEx.WhenAll(tasks.Item1, tasks.Item2, tasks.Item3, tasks.Item4, tasks.Item5, tasks.Item6, tasks.Item7, tasks.Item8, tasks.Item9, tasks.Item10).GetAwaiter();
+        }
+
+        public static ValueTaskAwaiter GetAwaiter(this (ValueTask task0, ValueTask task1, ValueTask task2, ValueTask task3, ValueTask task4, ValueTask task5, ValueTask task6, ValueTask task7, ValueTask task8, ValueTask task9, ValueTask task10) tasks)
+        {
+            return ValueTaskEx.WhenAll(tasks.Item1, tasks.Item2, tasks.Item3, tasks.Item4, tasks.Item5, tasks.Item6, tasks.Item7, tasks.Item8, tasks.Item9, tasks.Item10, tasks.Item11).GetAwaiter();
+        }
+
+        public static ValueTaskAwaiter GetAwaiter(this (ValueTask task0, ValueTask task1, ValueTask task2, ValueTask task3, ValueTask task4, ValueTask task5, ValueTask task6, ValueTask task7, ValueTask task8, ValueTask task9, ValueTask task10, ValueTask task11) tasks)
+        {
+            return ValueTaskEx.WhenAll(tasks.Item1, tasks.Item2, tasks.Item3, tasks.Item4, tasks.Item5, tasks.Item6, tasks.Item7, tasks.Item8, tasks.Item9, tasks.Item10, tasks.Item11, tasks.Item12).GetAwaiter();
+        }
+
+        public static ValueTaskAwaiter GetAwaiter(this (ValueTask task0, ValueTask task1, ValueTask task2, ValueTask task3, ValueTask task4, ValueTask task5, ValueTask task6, ValueTask task7, ValueTask task8, ValueTask task9, ValueTask task10, ValueTask task11, ValueTask task12) tasks)
+        {
+            return ValueTaskEx.WhenAll(tasks.Item1, tasks.Item2, tasks.Item3, tasks.Item4, tasks.Item5, tasks.Item6, tasks.Item7, tasks.Item8, tasks.Item9, tasks.Item10, tasks.Item11, tasks.Item12, tasks.Item13).GetAwaiter();
+        }
+
+        public static ValueTaskAwaiter GetAwaiter(this (ValueTask task0, ValueTask task1, ValueTask task2, ValueTask task3, ValueTask task4, ValueTask task5, ValueTask task6, ValueTask task7, ValueTask task8, ValueTask task9, ValueTask task10, ValueTask task11, ValueTask task12, ValueTask task13) tasks)
+        {
+            return ValueTaskEx.WhenAll(tasks.Item1, tasks.Item2, tasks.Item3, tasks.Item4, tasks.Item5, tasks.Item6, tasks.Item7, tasks.Item8, tasks.Item9, tasks.Item10, tasks.Item11, tasks.Item12, tasks.Item13, tasks.Item14).GetAwaiter();
+        }
+
+        public static ValueTaskAwaiter GetAwaiter(this (ValueTask task0, ValueTask task1, ValueTask task2, ValueTask task3, ValueTask task4, ValueTask task5, ValueTask task6, ValueTask task7, ValueTask task8, ValueTask task9, ValueTask task10, ValueTask task11, ValueTask task12, ValueTask task13, ValueTask task14) tasks)
+        {
+            return ValueTaskEx.WhenAll(tasks.Item1, tasks.Item2, tasks.Item3, tasks.Item4, tasks.Item5, tasks.Item6, tasks.Item7, tasks.Item8, tasks.Item9, tasks.Item10, tasks.Item11, tasks.Item12, tasks.Item13, tasks.Item14, tasks.Item15).GetAwaiter();
+        }
+
+        public static ValueTaskAwaiter GetAwaiter(this (ValueTask task0, ValueTask task1, ValueTask task2, ValueTask task3, ValueTask task4, ValueTask task5, ValueTask task6, ValueTask task7, ValueTask task8, ValueTask task9, ValueTask task10, ValueTask task11, ValueTask task12, ValueTask task13, ValueTask task14, ValueTask task15) tasks)
+        {
+            return ValueTaskEx.WhenAll(tasks.Item1, tasks.Item2, tasks.Item3, tasks.Item4, tasks.Item5, tasks.Item6, tasks.Item7, tasks.Item8, tasks.Item9, tasks.Item10, tasks.Item11, tasks.Item12, tasks.Item13, tasks.Item14, tasks.Item15, tasks.Item16).GetAwaiter();
+        }
+        #endregion
     }
 }
