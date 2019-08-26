@@ -28,7 +28,7 @@ namespace ValueTaskSupplement.Tests
         }
 
         [Fact]
-        public async Task ASync()
+        public async Task Async()
         {
             var calledCount = 0;
             var syncLazy = ValueTaskEx.Lazy(async () => { calledCount++; await Task.Delay(TimeSpan.FromSeconds(1)); return new object(); });
