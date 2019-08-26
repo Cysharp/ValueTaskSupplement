@@ -18,7 +18,7 @@ namespace ValueTaskSupplement
         {
             if (array.Length <= index)
             {
-                var newArray = ArrayPool<T>.Shared.Rent(index);
+                var newArray = ArrayPool<T>.Shared.Rent(index * 2);
                 Array.Copy(array, newArray, index);
                 ArrayPool<T>.Shared.Return(array, true);
                 array = newArray;
