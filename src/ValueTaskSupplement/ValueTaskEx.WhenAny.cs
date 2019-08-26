@@ -9,12 +9,12 @@ namespace ValueTaskSupplement
 {
     public static partial class ValueTaskEx
     {
-        public static ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1))> WhenAny<T0, T1>(ValueTask<T0> task0, ValueTask<T1> task1)
+        public static ValueTask<(int winArgumentIndex, T0 result0, T1 result1)> WhenAny<T0, T1>(ValueTask<T0> task0, ValueTask<T1> task1)
         {
-            return new ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1))>(new WhenAnyPromise<T0, T1>(task0, task1), 0);
+            return new ValueTask<(int winArgumentIndex, T0 result0, T1 result1)>(new WhenAnyPromise<T0, T1>(task0, task1), 0);
         }
 
-        class WhenAnyPromise<T0, T1> : IValueTaskSource<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1))>
+        class WhenAnyPromise<T0, T1> : IValueTaskSource<(int winArgumentIndex, T0 result0, T1 result1)>
         {
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
@@ -146,14 +146,14 @@ namespace ValueTaskSupplement
                 }
             }
 
-            public (int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1)) GetResult(short token)
+            public (int winArgumentIndex, T0 result0, T1 result1) GetResult(short token)
             {
                 if (exception != null)
                 {
                     exception.Throw();
                 }
                 var i = this.winArgumentIndex;
-                return (winArgumentIndex, (i == 0, t0), (i == 1, t1));
+                return (winArgumentIndex, t0, t1);
             }
 
             public ValueTaskSourceStatus GetStatus(short token)
@@ -212,12 +212,12 @@ namespace ValueTaskSupplement
             }
         }
 
-        public static ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2))> WhenAny<T0, T1, T2>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2)
+        public static ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2)> WhenAny<T0, T1, T2>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2)
         {
-            return new ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2))>(new WhenAnyPromise<T0, T1, T2>(task0, task1, task2), 0);
+            return new ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2)>(new WhenAnyPromise<T0, T1, T2>(task0, task1, task2), 0);
         }
 
-        class WhenAnyPromise<T0, T1, T2> : IValueTaskSource<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2))>
+        class WhenAnyPromise<T0, T1, T2> : IValueTaskSource<(int winArgumentIndex, T0 result0, T1 result1, T2 result2)>
         {
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
@@ -388,14 +388,14 @@ namespace ValueTaskSupplement
                 }
             }
 
-            public (int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2)) GetResult(short token)
+            public (int winArgumentIndex, T0 result0, T1 result1, T2 result2) GetResult(short token)
             {
                 if (exception != null)
                 {
                     exception.Throw();
                 }
                 var i = this.winArgumentIndex;
-                return (winArgumentIndex, (i == 0, t0), (i == 1, t1), (i == 2, t2));
+                return (winArgumentIndex, t0, t1, t2);
             }
 
             public ValueTaskSourceStatus GetStatus(short token)
@@ -454,12 +454,12 @@ namespace ValueTaskSupplement
             }
         }
 
-        public static ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3))> WhenAny<T0, T1, T2, T3>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3)
+        public static ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3)> WhenAny<T0, T1, T2, T3>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3)
         {
-            return new ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3))>(new WhenAnyPromise<T0, T1, T2, T3>(task0, task1, task2, task3), 0);
+            return new ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3)>(new WhenAnyPromise<T0, T1, T2, T3>(task0, task1, task2, task3), 0);
         }
 
-        class WhenAnyPromise<T0, T1, T2, T3> : IValueTaskSource<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3))>
+        class WhenAnyPromise<T0, T1, T2, T3> : IValueTaskSource<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3)>
         {
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
@@ -669,14 +669,14 @@ namespace ValueTaskSupplement
                 }
             }
 
-            public (int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3)) GetResult(short token)
+            public (int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3) GetResult(short token)
             {
                 if (exception != null)
                 {
                     exception.Throw();
                 }
                 var i = this.winArgumentIndex;
-                return (winArgumentIndex, (i == 0, t0), (i == 1, t1), (i == 2, t2), (i == 3, t3));
+                return (winArgumentIndex, t0, t1, t2, t3);
             }
 
             public ValueTaskSourceStatus GetStatus(short token)
@@ -735,12 +735,12 @@ namespace ValueTaskSupplement
             }
         }
 
-        public static ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4))> WhenAny<T0, T1, T2, T3, T4>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4)
+        public static ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4)> WhenAny<T0, T1, T2, T3, T4>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4)
         {
-            return new ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4))>(new WhenAnyPromise<T0, T1, T2, T3, T4>(task0, task1, task2, task3, task4), 0);
+            return new ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4)>(new WhenAnyPromise<T0, T1, T2, T3, T4>(task0, task1, task2, task3, task4), 0);
         }
 
-        class WhenAnyPromise<T0, T1, T2, T3, T4> : IValueTaskSource<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4))>
+        class WhenAnyPromise<T0, T1, T2, T3, T4> : IValueTaskSource<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4)>
         {
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
@@ -989,14 +989,14 @@ namespace ValueTaskSupplement
                 }
             }
 
-            public (int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4)) GetResult(short token)
+            public (int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4) GetResult(short token)
             {
                 if (exception != null)
                 {
                     exception.Throw();
                 }
                 var i = this.winArgumentIndex;
-                return (winArgumentIndex, (i == 0, t0), (i == 1, t1), (i == 2, t2), (i == 3, t3), (i == 4, t4));
+                return (winArgumentIndex, t0, t1, t2, t3, t4);
             }
 
             public ValueTaskSourceStatus GetStatus(short token)
@@ -1055,12 +1055,12 @@ namespace ValueTaskSupplement
             }
         }
 
-        public static ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5))> WhenAny<T0, T1, T2, T3, T4, T5>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5)
+        public static ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5)> WhenAny<T0, T1, T2, T3, T4, T5>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5)
         {
-            return new ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5))>(new WhenAnyPromise<T0, T1, T2, T3, T4, T5>(task0, task1, task2, task3, task4, task5), 0);
+            return new ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5)>(new WhenAnyPromise<T0, T1, T2, T3, T4, T5>(task0, task1, task2, task3, task4, task5), 0);
         }
 
-        class WhenAnyPromise<T0, T1, T2, T3, T4, T5> : IValueTaskSource<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5))>
+        class WhenAnyPromise<T0, T1, T2, T3, T4, T5> : IValueTaskSource<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5)>
         {
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
@@ -1348,14 +1348,14 @@ namespace ValueTaskSupplement
                 }
             }
 
-            public (int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5)) GetResult(short token)
+            public (int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5) GetResult(short token)
             {
                 if (exception != null)
                 {
                     exception.Throw();
                 }
                 var i = this.winArgumentIndex;
-                return (winArgumentIndex, (i == 0, t0), (i == 1, t1), (i == 2, t2), (i == 3, t3), (i == 4, t4), (i == 5, t5));
+                return (winArgumentIndex, t0, t1, t2, t3, t4, t5);
             }
 
             public ValueTaskSourceStatus GetStatus(short token)
@@ -1414,12 +1414,12 @@ namespace ValueTaskSupplement
             }
         }
 
-        public static ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6))> WhenAny<T0, T1, T2, T3, T4, T5, T6>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6)
+        public static ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6)> WhenAny<T0, T1, T2, T3, T4, T5, T6>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6)
         {
-            return new ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6))>(new WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6>(task0, task1, task2, task3, task4, task5, task6), 0);
+            return new ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6)>(new WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6>(task0, task1, task2, task3, task4, task5, task6), 0);
         }
 
-        class WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6> : IValueTaskSource<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6))>
+        class WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6> : IValueTaskSource<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6)>
         {
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
@@ -1746,14 +1746,14 @@ namespace ValueTaskSupplement
                 }
             }
 
-            public (int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6)) GetResult(short token)
+            public (int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6) GetResult(short token)
             {
                 if (exception != null)
                 {
                     exception.Throw();
                 }
                 var i = this.winArgumentIndex;
-                return (winArgumentIndex, (i == 0, t0), (i == 1, t1), (i == 2, t2), (i == 3, t3), (i == 4, t4), (i == 5, t5), (i == 6, t6));
+                return (winArgumentIndex, t0, t1, t2, t3, t4, t5, t6);
             }
 
             public ValueTaskSourceStatus GetStatus(short token)
@@ -1812,12 +1812,12 @@ namespace ValueTaskSupplement
             }
         }
 
-        public static ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7))> WhenAny<T0, T1, T2, T3, T4, T5, T6, T7>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7)
+        public static ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7)> WhenAny<T0, T1, T2, T3, T4, T5, T6, T7>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7)
         {
-            return new ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7))>(new WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7>(task0, task1, task2, task3, task4, task5, task6, task7), 0);
+            return new ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7)>(new WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7>(task0, task1, task2, task3, task4, task5, task6, task7), 0);
         }
 
-        class WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7> : IValueTaskSource<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7))>
+        class WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7> : IValueTaskSource<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7)>
         {
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
@@ -2183,14 +2183,14 @@ namespace ValueTaskSupplement
                 }
             }
 
-            public (int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7)) GetResult(short token)
+            public (int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7) GetResult(short token)
             {
                 if (exception != null)
                 {
                     exception.Throw();
                 }
                 var i = this.winArgumentIndex;
-                return (winArgumentIndex, (i == 0, t0), (i == 1, t1), (i == 2, t2), (i == 3, t3), (i == 4, t4), (i == 5, t5), (i == 6, t6), (i == 7, t7));
+                return (winArgumentIndex, t0, t1, t2, t3, t4, t5, t6, t7);
             }
 
             public ValueTaskSourceStatus GetStatus(short token)
@@ -2249,12 +2249,12 @@ namespace ValueTaskSupplement
             }
         }
 
-        public static ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8))> WhenAny<T0, T1, T2, T3, T4, T5, T6, T7, T8>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8)
+        public static ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8)> WhenAny<T0, T1, T2, T3, T4, T5, T6, T7, T8>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8)
         {
-            return new ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8))>(new WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8>(task0, task1, task2, task3, task4, task5, task6, task7, task8), 0);
+            return new ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8)>(new WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8>(task0, task1, task2, task3, task4, task5, task6, task7, task8), 0);
         }
 
-        class WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8> : IValueTaskSource<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8))>
+        class WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8> : IValueTaskSource<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8)>
         {
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
@@ -2659,14 +2659,14 @@ namespace ValueTaskSupplement
                 }
             }
 
-            public (int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8)) GetResult(short token)
+            public (int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8) GetResult(short token)
             {
                 if (exception != null)
                 {
                     exception.Throw();
                 }
                 var i = this.winArgumentIndex;
-                return (winArgumentIndex, (i == 0, t0), (i == 1, t1), (i == 2, t2), (i == 3, t3), (i == 4, t4), (i == 5, t5), (i == 6, t6), (i == 7, t7), (i == 8, t8));
+                return (winArgumentIndex, t0, t1, t2, t3, t4, t5, t6, t7, t8);
             }
 
             public ValueTaskSourceStatus GetStatus(short token)
@@ -2725,12 +2725,12 @@ namespace ValueTaskSupplement
             }
         }
 
-        public static ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9))> WhenAny<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8, ValueTask<T9> task9)
+        public static ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9)> WhenAny<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8, ValueTask<T9> task9)
         {
-            return new ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9))>(new WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>(task0, task1, task2, task3, task4, task5, task6, task7, task8, task9), 0);
+            return new ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9)>(new WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>(task0, task1, task2, task3, task4, task5, task6, task7, task8, task9), 0);
         }
 
-        class WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> : IValueTaskSource<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9))>
+        class WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> : IValueTaskSource<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9)>
         {
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
@@ -3174,14 +3174,14 @@ namespace ValueTaskSupplement
                 }
             }
 
-            public (int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9)) GetResult(short token)
+            public (int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9) GetResult(short token)
             {
                 if (exception != null)
                 {
                     exception.Throw();
                 }
                 var i = this.winArgumentIndex;
-                return (winArgumentIndex, (i == 0, t0), (i == 1, t1), (i == 2, t2), (i == 3, t3), (i == 4, t4), (i == 5, t5), (i == 6, t6), (i == 7, t7), (i == 8, t8), (i == 9, t9));
+                return (winArgumentIndex, t0, t1, t2, t3, t4, t5, t6, t7, t8, t9);
             }
 
             public ValueTaskSourceStatus GetStatus(short token)
@@ -3240,12 +3240,12 @@ namespace ValueTaskSupplement
             }
         }
 
-        public static ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9), (bool hasResult, T10 result10))> WhenAny<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8, ValueTask<T9> task9, ValueTask<T10> task10)
+        public static ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9, T10 result10)> WhenAny<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8, ValueTask<T9> task9, ValueTask<T10> task10)
         {
-            return new ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9), (bool hasResult, T10 result10))>(new WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(task0, task1, task2, task3, task4, task5, task6, task7, task8, task9, task10), 0);
+            return new ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9, T10 result10)>(new WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(task0, task1, task2, task3, task4, task5, task6, task7, task8, task9, task10), 0);
         }
 
-        class WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : IValueTaskSource<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9), (bool hasResult, T10 result10))>
+        class WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : IValueTaskSource<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9, T10 result10)>
         {
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
@@ -3728,14 +3728,14 @@ namespace ValueTaskSupplement
                 }
             }
 
-            public (int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9), (bool hasResult, T10 result10)) GetResult(short token)
+            public (int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9, T10 result10) GetResult(short token)
             {
                 if (exception != null)
                 {
                     exception.Throw();
                 }
                 var i = this.winArgumentIndex;
-                return (winArgumentIndex, (i == 0, t0), (i == 1, t1), (i == 2, t2), (i == 3, t3), (i == 4, t4), (i == 5, t5), (i == 6, t6), (i == 7, t7), (i == 8, t8), (i == 9, t9), (i == 10, t10));
+                return (winArgumentIndex, t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10);
             }
 
             public ValueTaskSourceStatus GetStatus(short token)
@@ -3794,12 +3794,12 @@ namespace ValueTaskSupplement
             }
         }
 
-        public static ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9), (bool hasResult, T10 result10), (bool hasResult, T11 result11))> WhenAny<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8, ValueTask<T9> task9, ValueTask<T10> task10, ValueTask<T11> task11)
+        public static ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9, T10 result10, T11 result11)> WhenAny<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8, ValueTask<T9> task9, ValueTask<T10> task10, ValueTask<T11> task11)
         {
-            return new ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9), (bool hasResult, T10 result10), (bool hasResult, T11 result11))>(new WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(task0, task1, task2, task3, task4, task5, task6, task7, task8, task9, task10, task11), 0);
+            return new ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9, T10 result10, T11 result11)>(new WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(task0, task1, task2, task3, task4, task5, task6, task7, task8, task9, task10, task11), 0);
         }
 
-        class WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> : IValueTaskSource<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9), (bool hasResult, T10 result10), (bool hasResult, T11 result11))>
+        class WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> : IValueTaskSource<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9, T10 result10, T11 result11)>
         {
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
@@ -4321,14 +4321,14 @@ namespace ValueTaskSupplement
                 }
             }
 
-            public (int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9), (bool hasResult, T10 result10), (bool hasResult, T11 result11)) GetResult(short token)
+            public (int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9, T10 result10, T11 result11) GetResult(short token)
             {
                 if (exception != null)
                 {
                     exception.Throw();
                 }
                 var i = this.winArgumentIndex;
-                return (winArgumentIndex, (i == 0, t0), (i == 1, t1), (i == 2, t2), (i == 3, t3), (i == 4, t4), (i == 5, t5), (i == 6, t6), (i == 7, t7), (i == 8, t8), (i == 9, t9), (i == 10, t10), (i == 11, t11));
+                return (winArgumentIndex, t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11);
             }
 
             public ValueTaskSourceStatus GetStatus(short token)
@@ -4387,12 +4387,12 @@ namespace ValueTaskSupplement
             }
         }
 
-        public static ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9), (bool hasResult, T10 result10), (bool hasResult, T11 result11), (bool hasResult, T12 result12))> WhenAny<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8, ValueTask<T9> task9, ValueTask<T10> task10, ValueTask<T11> task11, ValueTask<T12> task12)
+        public static ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9, T10 result10, T11 result11, T12 result12)> WhenAny<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8, ValueTask<T9> task9, ValueTask<T10> task10, ValueTask<T11> task11, ValueTask<T12> task12)
         {
-            return new ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9), (bool hasResult, T10 result10), (bool hasResult, T11 result11), (bool hasResult, T12 result12))>(new WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(task0, task1, task2, task3, task4, task5, task6, task7, task8, task9, task10, task11, task12), 0);
+            return new ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9, T10 result10, T11 result11, T12 result12)>(new WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(task0, task1, task2, task3, task4, task5, task6, task7, task8, task9, task10, task11, task12), 0);
         }
 
-        class WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> : IValueTaskSource<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9), (bool hasResult, T10 result10), (bool hasResult, T11 result11), (bool hasResult, T12 result12))>
+        class WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> : IValueTaskSource<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9, T10 result10, T11 result11, T12 result12)>
         {
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
@@ -4953,14 +4953,14 @@ namespace ValueTaskSupplement
                 }
             }
 
-            public (int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9), (bool hasResult, T10 result10), (bool hasResult, T11 result11), (bool hasResult, T12 result12)) GetResult(short token)
+            public (int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9, T10 result10, T11 result11, T12 result12) GetResult(short token)
             {
                 if (exception != null)
                 {
                     exception.Throw();
                 }
                 var i = this.winArgumentIndex;
-                return (winArgumentIndex, (i == 0, t0), (i == 1, t1), (i == 2, t2), (i == 3, t3), (i == 4, t4), (i == 5, t5), (i == 6, t6), (i == 7, t7), (i == 8, t8), (i == 9, t9), (i == 10, t10), (i == 11, t11), (i == 12, t12));
+                return (winArgumentIndex, t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12);
             }
 
             public ValueTaskSourceStatus GetStatus(short token)
@@ -5019,12 +5019,12 @@ namespace ValueTaskSupplement
             }
         }
 
-        public static ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9), (bool hasResult, T10 result10), (bool hasResult, T11 result11), (bool hasResult, T12 result12), (bool hasResult, T13 result13))> WhenAny<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8, ValueTask<T9> task9, ValueTask<T10> task10, ValueTask<T11> task11, ValueTask<T12> task12, ValueTask<T13> task13)
+        public static ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9, T10 result10, T11 result11, T12 result12, T13 result13)> WhenAny<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8, ValueTask<T9> task9, ValueTask<T10> task10, ValueTask<T11> task11, ValueTask<T12> task12, ValueTask<T13> task13)
         {
-            return new ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9), (bool hasResult, T10 result10), (bool hasResult, T11 result11), (bool hasResult, T12 result12), (bool hasResult, T13 result13))>(new WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(task0, task1, task2, task3, task4, task5, task6, task7, task8, task9, task10, task11, task12, task13), 0);
+            return new ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9, T10 result10, T11 result11, T12 result12, T13 result13)>(new WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(task0, task1, task2, task3, task4, task5, task6, task7, task8, task9, task10, task11, task12, task13), 0);
         }
 
-        class WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> : IValueTaskSource<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9), (bool hasResult, T10 result10), (bool hasResult, T11 result11), (bool hasResult, T12 result12), (bool hasResult, T13 result13))>
+        class WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> : IValueTaskSource<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9, T10 result10, T11 result11, T12 result12, T13 result13)>
         {
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
@@ -5624,14 +5624,14 @@ namespace ValueTaskSupplement
                 }
             }
 
-            public (int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9), (bool hasResult, T10 result10), (bool hasResult, T11 result11), (bool hasResult, T12 result12), (bool hasResult, T13 result13)) GetResult(short token)
+            public (int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9, T10 result10, T11 result11, T12 result12, T13 result13) GetResult(short token)
             {
                 if (exception != null)
                 {
                     exception.Throw();
                 }
                 var i = this.winArgumentIndex;
-                return (winArgumentIndex, (i == 0, t0), (i == 1, t1), (i == 2, t2), (i == 3, t3), (i == 4, t4), (i == 5, t5), (i == 6, t6), (i == 7, t7), (i == 8, t8), (i == 9, t9), (i == 10, t10), (i == 11, t11), (i == 12, t12), (i == 13, t13));
+                return (winArgumentIndex, t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13);
             }
 
             public ValueTaskSourceStatus GetStatus(short token)
@@ -5690,12 +5690,12 @@ namespace ValueTaskSupplement
             }
         }
 
-        public static ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9), (bool hasResult, T10 result10), (bool hasResult, T11 result11), (bool hasResult, T12 result12), (bool hasResult, T13 result13), (bool hasResult, T14 result14))> WhenAny<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8, ValueTask<T9> task9, ValueTask<T10> task10, ValueTask<T11> task11, ValueTask<T12> task12, ValueTask<T13> task13, ValueTask<T14> task14)
+        public static ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9, T10 result10, T11 result11, T12 result12, T13 result13, T14 result14)> WhenAny<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8, ValueTask<T9> task9, ValueTask<T10> task10, ValueTask<T11> task11, ValueTask<T12> task12, ValueTask<T13> task13, ValueTask<T14> task14)
         {
-            return new ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9), (bool hasResult, T10 result10), (bool hasResult, T11 result11), (bool hasResult, T12 result12), (bool hasResult, T13 result13), (bool hasResult, T14 result14))>(new WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(task0, task1, task2, task3, task4, task5, task6, task7, task8, task9, task10, task11, task12, task13, task14), 0);
+            return new ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9, T10 result10, T11 result11, T12 result12, T13 result13, T14 result14)>(new WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(task0, task1, task2, task3, task4, task5, task6, task7, task8, task9, task10, task11, task12, task13, task14), 0);
         }
 
-        class WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> : IValueTaskSource<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9), (bool hasResult, T10 result10), (bool hasResult, T11 result11), (bool hasResult, T12 result12), (bool hasResult, T13 result13), (bool hasResult, T14 result14))>
+        class WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> : IValueTaskSource<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9, T10 result10, T11 result11, T12 result12, T13 result13, T14 result14)>
         {
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
@@ -6334,14 +6334,14 @@ namespace ValueTaskSupplement
                 }
             }
 
-            public (int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9), (bool hasResult, T10 result10), (bool hasResult, T11 result11), (bool hasResult, T12 result12), (bool hasResult, T13 result13), (bool hasResult, T14 result14)) GetResult(short token)
+            public (int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9, T10 result10, T11 result11, T12 result12, T13 result13, T14 result14) GetResult(short token)
             {
                 if (exception != null)
                 {
                     exception.Throw();
                 }
                 var i = this.winArgumentIndex;
-                return (winArgumentIndex, (i == 0, t0), (i == 1, t1), (i == 2, t2), (i == 3, t3), (i == 4, t4), (i == 5, t5), (i == 6, t6), (i == 7, t7), (i == 8, t8), (i == 9, t9), (i == 10, t10), (i == 11, t11), (i == 12, t12), (i == 13, t13), (i == 14, t14));
+                return (winArgumentIndex, t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14);
             }
 
             public ValueTaskSourceStatus GetStatus(short token)
@@ -6400,12 +6400,12 @@ namespace ValueTaskSupplement
             }
         }
 
-        public static ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9), (bool hasResult, T10 result10), (bool hasResult, T11 result11), (bool hasResult, T12 result12), (bool hasResult, T13 result13), (bool hasResult, T14 result14), (bool hasResult, T15 result15))> WhenAny<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8, ValueTask<T9> task9, ValueTask<T10> task10, ValueTask<T11> task11, ValueTask<T12> task12, ValueTask<T13> task13, ValueTask<T14> task14, ValueTask<T15> task15)
+        public static ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9, T10 result10, T11 result11, T12 result12, T13 result13, T14 result14, T15 result15)> WhenAny<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8, ValueTask<T9> task9, ValueTask<T10> task10, ValueTask<T11> task11, ValueTask<T12> task12, ValueTask<T13> task13, ValueTask<T14> task14, ValueTask<T15> task15)
         {
-            return new ValueTask<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9), (bool hasResult, T10 result10), (bool hasResult, T11 result11), (bool hasResult, T12 result12), (bool hasResult, T13 result13), (bool hasResult, T14 result14), (bool hasResult, T15 result15))>(new WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(task0, task1, task2, task3, task4, task5, task6, task7, task8, task9, task10, task11, task12, task13, task14, task15), 0);
+            return new ValueTask<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9, T10 result10, T11 result11, T12 result12, T13 result13, T14 result14, T15 result15)>(new WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(task0, task1, task2, task3, task4, task5, task6, task7, task8, task9, task10, task11, task12, task13, task14, task15), 0);
         }
 
-        class WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> : IValueTaskSource<(int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9), (bool hasResult, T10 result10), (bool hasResult, T11 result11), (bool hasResult, T12 result12), (bool hasResult, T13 result13), (bool hasResult, T14 result14), (bool hasResult, T15 result15))>
+        class WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> : IValueTaskSource<(int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9, T10 result10, T11 result11, T12 result12, T13 result13, T14 result14, T15 result15)>
         {
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
@@ -7083,14 +7083,14 @@ namespace ValueTaskSupplement
                 }
             }
 
-            public (int winArgumentIndex, (bool hasResult, T0 result0), (bool hasResult, T1 result1), (bool hasResult, T2 result2), (bool hasResult, T3 result3), (bool hasResult, T4 result4), (bool hasResult, T5 result5), (bool hasResult, T6 result6), (bool hasResult, T7 result7), (bool hasResult, T8 result8), (bool hasResult, T9 result9), (bool hasResult, T10 result10), (bool hasResult, T11 result11), (bool hasResult, T12 result12), (bool hasResult, T13 result13), (bool hasResult, T14 result14), (bool hasResult, T15 result15)) GetResult(short token)
+            public (int winArgumentIndex, T0 result0, T1 result1, T2 result2, T3 result3, T4 result4, T5 result5, T6 result6, T7 result7, T8 result8, T9 result9, T10 result10, T11 result11, T12 result12, T13 result13, T14 result14, T15 result15) GetResult(short token)
             {
                 if (exception != null)
                 {
                     exception.Throw();
                 }
                 var i = this.winArgumentIndex;
-                return (winArgumentIndex, (i == 0, t0), (i == 1, t1), (i == 2, t2), (i == 3, t3), (i == 4, t4), (i == 5, t5), (i == 6, t6), (i == 7, t7), (i == 8, t8), (i == 9, t9), (i == 10, t10), (i == 11, t11), (i == 12, t12), (i == 13, t13), (i == 14, t14), (i == 15, t15));
+                return (winArgumentIndex, t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15);
             }
 
             public ValueTaskSourceStatus GetStatus(short token)

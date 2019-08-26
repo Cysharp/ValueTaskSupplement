@@ -1,65 +1,53 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <OutputType>Library</OutputType>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <Company>Cysharp</Company>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>1701;1702;1705;1591</NoWarn>
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <OutputType>Library</OutputType>
+        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+        <Company>Cysharp</Company>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>1701;1702;1705;1591</NoWarn>
 
-    <!-- NuGet -->
-    <PackageId>ValueTaskSupplement</PackageId>
-    <PackageVersion>$(Version)</PackageVersion>
-    <Authors>Cysharp</Authors>
-    <Copyright>Cysharp</Copyright>
-    <Description>Append supplemental methods(WhenAny, WhenAll, Lazy) to ValueTask.</Description>
-    <PackageProjectUrl>https://github.com/Cysharp/ValueTaskSupplement</PackageProjectUrl>
-    <RepositoryUrl>$(PackageProjectUrl)</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>async</PackageTags>
-  </PropertyGroup>
+        <!-- NuGet -->
+        <PackageId>ValueTaskSupplement</PackageId>
+        <PackageVersion>$(Version)</PackageVersion>
+        <Authors>Cysharp</Authors>
+        <Copyright>Cysharp</Copyright>
+        <Description>Append supplemental methods(WhenAny, WhenAll, Lazy) to ValueTask.</Description>
+        <PackageProjectUrl>https://github.com/Cysharp/ValueTaskSupplement</PackageProjectUrl>
+        <RepositoryUrl>$(PackageProjectUrl)</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>async</PackageTags>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <None Include="ValueTaskEx.WhenAll.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ValueTaskEx.WhenAll.tt</DependentUpon>
-    </None>
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="System.Buffers" Version="4.5.0" />
+        <PackageReference Include="System.Memory" Version="4.5.3" />
+        <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.3" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="System.Buffers" Version="4.5.0" />
-    <PackageReference Include="System.Memory" Version="4.5.3" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.3" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Update="ValueTaskEx.WhenAll.tt">
+            <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>ValueTaskEx.WhenAll.cs</LastGenOutput>
+        </None>
+        <None Update="ValueTaskEx.WhenAny.tt">
+            <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>ValueTaskEx.WhenAny.cs</LastGenOutput>
+        </None>
+    </ItemGroup>
 
-  <ItemGroup>
-    <None Update="ValueTaskEx.WhenAll.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>ValueTaskEx.WhenAll.cs</LastGenOutput>
-    </None>
-    <None Update="ValueTaskEx.WhenAny.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>ValueTaskEx.WhenAny.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="ValueTaskEx.WhenAll.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ValueTaskEx.WhenAll.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ValueTaskEx.WhenAny.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ValueTaskEx.WhenAny.tt</DependentUpon>
-    </Compile>
-  </ItemGroup>
+    <ItemGroup>
+        <Compile Update="ValueTaskEx.WhenAll.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>ValueTaskEx.WhenAll.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ValueTaskEx.WhenAny.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>ValueTaskEx.WhenAny.tt</DependentUpon>
+        </Compile>
+    </ItemGroup>
 
 </Project>

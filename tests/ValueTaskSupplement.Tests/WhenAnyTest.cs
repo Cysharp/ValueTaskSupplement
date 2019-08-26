@@ -17,10 +17,8 @@ namespace ValueTaskSupplement.Tests
             var c = CreateSync(3);
             var result = await ValueTaskEx.WhenAny(a, b, c);
             result.winArgumentIndex.Should().Be(0);
-            result.Item2.hasResult.Should().BeTrue();
-            result.Item2.result0.Should().Be(1);
-            result.Item3.hasResult.Should().BeFalse();
-            result.Item4.hasResult.Should().BeFalse();
+
+            result.result0.Should().Be(1);
         }
 
         [Fact]
@@ -31,10 +29,8 @@ namespace ValueTaskSupplement.Tests
             var c = CreateAsync(3);
             var result = await ValueTaskEx.WhenAny(a, b, c);
             result.winArgumentIndex.Should().Be(1);
-            result.Item3.result1.Should().Be(2);
-            result.Item2.hasResult.Should().BeFalse();
-            result.Item3.hasResult.Should().BeTrue();
-            result.Item4.hasResult.Should().BeFalse();
+
+            result.result1.Should().Be(2);
         }
 
         [Fact]
@@ -48,6 +44,31 @@ namespace ValueTaskSupplement.Tests
             result.result.Should().Be(1);
         }
 
+        [Fact]
+        public async Task Timeout()
+        {
+            {
+                var delay = Task.Delay(TimeSpan.FromMilliseconds(100));
+                var vtask = CreateAsync(999);
+                var (hasValue, value) = await ValueTaskEx.WhenAny(vtask, delay);
+                hasValue.Should().BeTrue();
+                value.Should().Be(999);
+            }
+            {
+                var delay = Task.Delay(TimeSpan.FromMilliseconds(100));
+                var vtask = CreateAsyncSlow(999);
+                var (hasValue, value) = await ValueTaskEx.WhenAny(vtask, delay);
+                hasValue.Should().BeFalse();
+            }
+            {
+                var delay = Task.Delay(TimeSpan.FromMilliseconds(100));
+                var vtask = CreateSync(999);
+                var (hasValue, value) = await ValueTaskEx.WhenAny(vtask, delay);
+                hasValue.Should().BeTrue();
+                value.Should().Be(999);
+            }
+        }
+
         ValueTask<int> CreateSync(int i)
         {
             return new ValueTask<int>(i);
@@ -56,6 +77,12 @@ namespace ValueTaskSupplement.Tests
         async ValueTask<int> CreateAsync(int i)
         {
             await Task.Delay(TimeSpan.FromMilliseconds(10));
+            return i;
+        }
+
+        async ValueTask<int> CreateAsyncSlow(int i)
+        {
+            await Task.Delay(TimeSpan.FromMilliseconds(200));
             return i;
         }
     }

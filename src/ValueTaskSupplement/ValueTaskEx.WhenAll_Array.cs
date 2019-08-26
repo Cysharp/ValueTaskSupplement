@@ -1,10 +1,5 @@
-﻿<#@ template debug="false" hostspecific="false" language="C#" #>
-<#@ assembly name="System.Core" #>
-<#@ import namespace="System.Linq" #>
-<#@ import namespace="System.Text" #>
-<#@ import namespace="System.Collections.Generic" #>
-<#@ output extension=".cs" #>
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Threading;
@@ -15,90 +10,141 @@ namespace ValueTaskSupplement
 {
     public static partial class ValueTaskEx
     {
-<# for(var i = 1; i <= 15; i++ ) {
-    var range = Enumerable.Range(0, i + 1);
-    var t = string.Join(", ", range.Select(x => "T" + x));
-    var ttuple = string.Join(", ", range.Select(x => $"T{x} result{x}"));
-    var args = string.Join(", ", range.Select(x => $"ValueTask<T{x}> task{x}"));
-    var targs = string.Join(", ", range.Select(x => $"task{x}"));
-    var tresultTuple = string.Join(", ", range.Select(x => $"t{x}"));
-#>
-        public static ValueTask<(int winArgumentIndex, <#= ttuple #>)> WhenAny<<#= t #>>(<#= args #>)
+        public static ValueTask<T[]> WhenAll<T>(IEnumerable<ValueTask<T>> tasks)
         {
-            return new ValueTask<(int winArgumentIndex, <#= ttuple #>)>(new WhenAnyPromise<<#= t #>>(<#= targs #>), 0);
+            return new ValueTask<T[]>(new WhenAllPromiseAll<T>(tasks), 0);
         }
 
-        class WhenAnyPromise<<#= t #>> : IValueTaskSource<(int winArgumentIndex, <#= ttuple #>)>
+        class WhenAllPromiseAll<T> : IValueTaskSource<T[]>
         {
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
 
-<# for(var j = 0; j <= i; j++) { #>
-            T<#= j #> t<#= j #> = default(T<#= j #>);
-<# } #>
-<# for(var j = 0; j <= i; j++) { #>
-            ValueTaskAwaiter<T<#= j #>> awaiter<#= j #>;
-<# } #>
-
             int completedCount = 0;
-            int winArgumentIndex = -1;
             ExceptionDispatchInfo exception;
             Action<object> continuation = ContinuationSentinel.AvailableContinuation;
             object state;
             SynchronizationContext syncContext;
             ExecutionContext execContext;
 
-            public WhenAnyPromise(<#= args #>)
+            T[] result;
+
+            public WhenAllPromiseAll(IEnumerable<ValueTask<T>> tasks)
             {
-<# for(var j = 0; j <= i; j++) { #>
+                if (tasks is ValueTask<T>[] array)
                 {
-                    var awaiter = task<#= j #>.GetAwaiter();
+                    Run(array);
+                    return;
+                }
+                if (tasks is IReadOnlyCollection<ValueTask<T>> c)
+                {
+                    Run(c, c.Count);
+                    return;
+                }
+                if (tasks is ICollection<ValueTask<T>> c2)
+                {
+                    Run(c2, c2.Count);
+                    return;
+                }
+
+                var list = new TempList<ValueTask<T>>(99);
+                try
+                {
+                    foreach (var item in tasks)
+                    {
+                        list.Add(item);
+                    }
+
+                    Run(list.AsSpan());
+                }
+                finally
+                {
+                    list.Dispose();
+                }
+            }
+
+            void Run(ReadOnlySpan<ValueTask<T>> tasks)
+            {
+                result = new T[tasks.Length];
+
+                var i = 0;
+                foreach (var task in tasks)
+                {
+                    var awaiter = task.GetAwaiter();
                     if (awaiter.IsCompleted)
                     {
                         try
                         {
-                            t<#= j #> = awaiter.GetResult();
-                            TryInvokeContinuationWithIncrement(<#= j #>);
-                            return;
+                            result[i] = awaiter.GetResult();
                         }
                         catch (Exception ex)
                         {
                             exception = ExceptionDispatchInfo.Capture(ex);
                             return;
                         }
+                        TryInvokeContinuationWithIncrement();
                     }
                     else
                     {
-                        awaiter<#= j #> = awaiter;
-                        awaiter.UnsafeOnCompleted(ContinuationT<#= j #>);
+                        RegisterContinuation(awaiter, i);
                     }
+
+                    i++;
                 }
-<# } #>
             }
 
-<# for(var j = 0; j <= i; j++) { #>
-            void ContinuationT<#= j #>()
+            void Run(IEnumerable<ValueTask<T>> tasks, int length)
             {
-                try
+                result = new T[length];
+
+                var i = 0;
+                foreach (var task in tasks)
                 {
-                    t<#= j #> = awaiter<#= j #>.GetResult();
+                    var awaiter = task.GetAwaiter();
+                    if (awaiter.IsCompleted)
+                    {
+                        try
+                        {
+                            result[i] = awaiter.GetResult();
+                        }
+                        catch (Exception ex)
+                        {
+                            exception = ExceptionDispatchInfo.Capture(ex);
+                            return;
+                        }
+                        TryInvokeContinuationWithIncrement();
+                    }
+                    else
+                    {
+                        RegisterContinuation(awaiter, i);
+                    }
+
+                    i++;
                 }
-                catch (Exception ex)
-                {
-                    exception = ExceptionDispatchInfo.Capture(ex);
-                    TryInvokeContinuation();
-                    return;
-                }
-                TryInvokeContinuationWithIncrement(<#= j #>);
             }
 
-<# } #>
-
-            void TryInvokeContinuationWithIncrement(int index)
+            void RegisterContinuation(ValueTaskAwaiter<T> awaiter, int index)
             {
-                if (Interlocked.Increment(ref completedCount) == 1)
+                awaiter.UnsafeOnCompleted(() =>
                 {
-                    Volatile.Write(ref winArgumentIndex, index);
+                    try
+                    {
+                        result[index] = awaiter.GetResult();
+                    }
+                    catch (Exception ex)
+                    {
+                        exception = ExceptionDispatchInfo.Capture(ex);
+                        TryInvokeContinuation();
+                        return;
+                    }
+                    TryInvokeContinuationWithIncrement();
+                });
+            }
+
+            void TryInvokeContinuationWithIncrement()
+            {
+                if (Interlocked.Increment(ref completedCount) == result.Length)
+                {
                     TryInvokeContinuation();
                 }
             }
@@ -129,19 +175,18 @@ namespace ValueTaskSupplement
                 }
             }
 
-            public (int winArgumentIndex, <#= ttuple #>) GetResult(short token)
+            public T[] GetResult(short token)
             {
                 if (exception != null)
                 {
                     exception.Throw();
                 }
-                var i = this.winArgumentIndex;
-                return (winArgumentIndex, <#= tresultTuple #>);
+                return result;
             }
 
             public ValueTaskSourceStatus GetStatus(short token)
             {
-                return (Volatile.Read(ref winArgumentIndex) != -1) ? ValueTaskSourceStatus.Succeeded
+                return (completedCount == result.Length) ? ValueTaskSourceStatus.Succeeded
                     : (exception != null) ? ((exception.SourceException is OperationCanceledException) ? ValueTaskSourceStatus.Canceled : ValueTaskSourceStatus.Faulted)
                     : ValueTaskSourceStatus.Pending;
             }
@@ -171,7 +216,7 @@ namespace ValueTaskSupplement
 
             static void ExecutionContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<<#= t #>>>)state;
+                var t = (Tuple<Action<object>, WhenAllPromiseAll<T>>)state;
                 var self = t.Item2;
                 if (self.syncContext != null)
                 {
@@ -187,7 +232,7 @@ namespace ValueTaskSupplement
 
             static void SynchronizationContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<<#= t #>>>)state;
+                var t = (Tuple<Action<object>, WhenAllPromiseAll<T>>)state;
                 var self = t.Item2;
                 var invokeState = self.state;
                 self.state = null;
@@ -195,6 +240,5 @@ namespace ValueTaskSupplement
             }
         }
 
-<# } #>
     }
 }
