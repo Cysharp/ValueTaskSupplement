@@ -85,6 +85,17 @@ Lazy
 public static ValueTask<T> Lazy<T>(Func<ValueTask<T>> factory)
 ```
 
+Factory
+---
+
+```csharp
+public static ValueTask<T> FromResult<T>(T result)
+public static ValueTask FromTask(Task result)
+public static ValueTask<T> FromTask<T>(Task<T> result)
+public static ValueTask AsValueTask(this Task result)
+public static ValueTask<T> AsValueTask<T>(this Task<T> result)
+```
+
 License
 ---
 This library is under the MIT License.
