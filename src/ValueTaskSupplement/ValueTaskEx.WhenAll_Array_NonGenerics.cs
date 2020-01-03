@@ -19,14 +19,15 @@ namespace ValueTaskSupplement
         {
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
-            
+
             int taskCount = 0;
             int completedCount = 0;
-            ExceptionDispatchInfo exception;
-            Action<object> continuation = ContinuationSentinel.AvailableContinuation;
-            object state;
-            SynchronizationContext syncContext;
-            ExecutionContext execContext;
+            ExceptionDispatchInfo? exception;
+            Action<object?> continuation = ContinuationSentinel.AvailableContinuation;
+            Action<object?>? invokeContinuation;
+            object? state;
+            SynchronizationContext? syncContext;
+            ExecutionContext? execContext;
 
             public WhenAllPromiseAll(IEnumerable<ValueTask> tasks)
             {
@@ -161,11 +162,13 @@ namespace ValueTaskSupplement
 
                     if (execContext != null)
                     {
-                        ExecutionContext.Run(execContext, execContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        ExecutionContext.Run(execContext, execContextCallback, this);
                     }
                     else if (syncContext != null)
                     {
-                        syncContext.Post(syncContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        syncContext.Post(syncContextCallback, this);
                     }
                     else
                     {
@@ -189,14 +192,25 @@ namespace ValueTaskSupplement
                     : ValueTaskSourceStatus.Pending;
             }
 
-            public void OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+            public void OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
             {
-                if (Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation) != ContinuationSentinel.AvailableContinuation)
+                var c = Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation);
+                if (c == ContinuationSentinel.CompletedContinuation)
+                {
+                    continuation(state);
+                    return;
+                }
+
+                if (c != ContinuationSentinel.AvailableContinuation)
                 {
                     throw new InvalidOperationException("does not allow multiple await.");
                 }
 
-                this.state = state;
+                if (state == null)
+                {
+                    throw new InvalidOperationException("invalid state.");
+                }
+
                 if ((flags & ValueTaskSourceOnCompletedFlags.FlowExecutionContext) == ValueTaskSourceOnCompletedFlags.FlowExecutionContext)
                 {
                     execContext = ExecutionContext.Capture();
@@ -205,6 +219,7 @@ namespace ValueTaskSupplement
                 {
                     syncContext = SynchronizationContext.Current;
                 }
+                this.state = state;
 
                 if (GetStatus(token) != ValueTaskSourceStatus.Pending)
                 {
@@ -214,27 +229,29 @@ namespace ValueTaskSupplement
 
             static void ExecutionContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAllPromiseAll>)state;
-                var self = t.Item2;
+                var self = (WhenAllPromiseAll)state;
                 if (self.syncContext != null)
                 {
-                    SynchronizationContextCallback(state);
+                    self.syncContext.Post(syncContextCallback, self);
                 }
                 else
                 {
+                    var invokeContinuation = self.invokeContinuation!;
                     var invokeState = self.state;
+                    self.invokeContinuation = null;
                     self.state = null;
-                    t.Item1.Invoke(invokeState);
+                    invokeContinuation(invokeState);
                 }
             }
 
             static void SynchronizationContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAllPromiseAll>)state;
-                var self = t.Item2;
+                var self = (WhenAllPromiseAll)state;
+                var invokeContinuation = self.invokeContinuation!;
                 var invokeState = self.state;
+                self.invokeContinuation = null;
                 self.state = null;
-                t.Item1.Invoke(invokeState);
+                invokeContinuation(invokeState);
             }
         }
 

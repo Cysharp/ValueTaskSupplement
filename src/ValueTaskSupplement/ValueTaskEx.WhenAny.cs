@@ -19,18 +19,19 @@ namespace ValueTaskSupplement
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
 
-            T0 t0 = default(T0);
-            T1 t1 = default(T1);
+            T0 t0 = default!;
+            T1 t1 = default!;
             ValueTaskAwaiter<T0> awaiter0;
             ValueTaskAwaiter<T1> awaiter1;
 
             int completedCount = 0;
             int winArgumentIndex = -1;
-            ExceptionDispatchInfo exception;
-            Action<object> continuation = ContinuationSentinel.AvailableContinuation;
-            object state;
-            SynchronizationContext syncContext;
-            ExecutionContext execContext;
+            ExceptionDispatchInfo? exception;
+            Action<object?> continuation = ContinuationSentinel.AvailableContinuation;
+            Action<object?>? invokeContinuation;
+            object? state;
+            SynchronizationContext? syncContext;
+            ExecutionContext? execContext;
 
             public WhenAnyPromise(ValueTask<T0> task0, ValueTask<T1> task1)
             {
@@ -133,11 +134,13 @@ namespace ValueTaskSupplement
 
                     if (execContext != null)
                     {
-                        ExecutionContext.Run(execContext, execContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        ExecutionContext.Run(execContext, execContextCallback, this);
                     }
                     else if (syncContext != null)
                     {
-                        syncContext.Post(syncContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        syncContext.Post(syncContextCallback, this);
                     }
                     else
                     {
@@ -163,14 +166,25 @@ namespace ValueTaskSupplement
                     : ValueTaskSourceStatus.Pending;
             }
 
-            public void OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+            public void OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
             {
-                if (Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation) != ContinuationSentinel.AvailableContinuation)
+                var c = Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation);
+                if (c == ContinuationSentinel.CompletedContinuation)
+                {
+                    continuation(state);
+                    return;
+                }
+
+                if (c != ContinuationSentinel.AvailableContinuation)
                 {
                     throw new InvalidOperationException("does not allow multiple await.");
                 }
 
-                this.state = state;
+                if (state == null)
+                {
+                    throw new InvalidOperationException("invalid state.");
+                }
+
                 if ((flags & ValueTaskSourceOnCompletedFlags.FlowExecutionContext) == ValueTaskSourceOnCompletedFlags.FlowExecutionContext)
                 {
                     execContext = ExecutionContext.Capture();
@@ -179,6 +193,7 @@ namespace ValueTaskSupplement
                 {
                     syncContext = SynchronizationContext.Current;
                 }
+                this.state = state;
 
                 if (GetStatus(token) != ValueTaskSourceStatus.Pending)
                 {
@@ -188,27 +203,29 @@ namespace ValueTaskSupplement
 
             static void ExecutionContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1>)state;
                 if (self.syncContext != null)
                 {
-                    SynchronizationContextCallback(state);
+                    self.syncContext.Post(syncContextCallback, self);
                 }
                 else
                 {
+                    var invokeContinuation = self.invokeContinuation!;
                     var invokeState = self.state;
+                    self.invokeContinuation = null;
                     self.state = null;
-                    t.Item1.Invoke(invokeState);
+                    invokeContinuation(invokeState);
                 }
             }
 
             static void SynchronizationContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1>)state;
+                var invokeContinuation = self.invokeContinuation!;
                 var invokeState = self.state;
+                self.invokeContinuation = null;
                 self.state = null;
-                t.Item1.Invoke(invokeState);
+                invokeContinuation(invokeState);
             }
         }
 
@@ -222,20 +239,21 @@ namespace ValueTaskSupplement
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
 
-            T0 t0 = default(T0);
-            T1 t1 = default(T1);
-            T2 t2 = default(T2);
+            T0 t0 = default!;
+            T1 t1 = default!;
+            T2 t2 = default!;
             ValueTaskAwaiter<T0> awaiter0;
             ValueTaskAwaiter<T1> awaiter1;
             ValueTaskAwaiter<T2> awaiter2;
 
             int completedCount = 0;
             int winArgumentIndex = -1;
-            ExceptionDispatchInfo exception;
-            Action<object> continuation = ContinuationSentinel.AvailableContinuation;
-            object state;
-            SynchronizationContext syncContext;
-            ExecutionContext execContext;
+            ExceptionDispatchInfo? exception;
+            Action<object?> continuation = ContinuationSentinel.AvailableContinuation;
+            Action<object?>? invokeContinuation;
+            object? state;
+            SynchronizationContext? syncContext;
+            ExecutionContext? execContext;
 
             public WhenAnyPromise(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2)
             {
@@ -375,11 +393,13 @@ namespace ValueTaskSupplement
 
                     if (execContext != null)
                     {
-                        ExecutionContext.Run(execContext, execContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        ExecutionContext.Run(execContext, execContextCallback, this);
                     }
                     else if (syncContext != null)
                     {
-                        syncContext.Post(syncContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        syncContext.Post(syncContextCallback, this);
                     }
                     else
                     {
@@ -405,14 +425,25 @@ namespace ValueTaskSupplement
                     : ValueTaskSourceStatus.Pending;
             }
 
-            public void OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+            public void OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
             {
-                if (Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation) != ContinuationSentinel.AvailableContinuation)
+                var c = Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation);
+                if (c == ContinuationSentinel.CompletedContinuation)
+                {
+                    continuation(state);
+                    return;
+                }
+
+                if (c != ContinuationSentinel.AvailableContinuation)
                 {
                     throw new InvalidOperationException("does not allow multiple await.");
                 }
 
-                this.state = state;
+                if (state == null)
+                {
+                    throw new InvalidOperationException("invalid state.");
+                }
+
                 if ((flags & ValueTaskSourceOnCompletedFlags.FlowExecutionContext) == ValueTaskSourceOnCompletedFlags.FlowExecutionContext)
                 {
                     execContext = ExecutionContext.Capture();
@@ -421,6 +452,7 @@ namespace ValueTaskSupplement
                 {
                     syncContext = SynchronizationContext.Current;
                 }
+                this.state = state;
 
                 if (GetStatus(token) != ValueTaskSourceStatus.Pending)
                 {
@@ -430,27 +462,29 @@ namespace ValueTaskSupplement
 
             static void ExecutionContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2>)state;
                 if (self.syncContext != null)
                 {
-                    SynchronizationContextCallback(state);
+                    self.syncContext.Post(syncContextCallback, self);
                 }
                 else
                 {
+                    var invokeContinuation = self.invokeContinuation!;
                     var invokeState = self.state;
+                    self.invokeContinuation = null;
                     self.state = null;
-                    t.Item1.Invoke(invokeState);
+                    invokeContinuation(invokeState);
                 }
             }
 
             static void SynchronizationContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2>)state;
+                var invokeContinuation = self.invokeContinuation!;
                 var invokeState = self.state;
+                self.invokeContinuation = null;
                 self.state = null;
-                t.Item1.Invoke(invokeState);
+                invokeContinuation(invokeState);
             }
         }
 
@@ -464,10 +498,10 @@ namespace ValueTaskSupplement
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
 
-            T0 t0 = default(T0);
-            T1 t1 = default(T1);
-            T2 t2 = default(T2);
-            T3 t3 = default(T3);
+            T0 t0 = default!;
+            T1 t1 = default!;
+            T2 t2 = default!;
+            T3 t3 = default!;
             ValueTaskAwaiter<T0> awaiter0;
             ValueTaskAwaiter<T1> awaiter1;
             ValueTaskAwaiter<T2> awaiter2;
@@ -475,11 +509,12 @@ namespace ValueTaskSupplement
 
             int completedCount = 0;
             int winArgumentIndex = -1;
-            ExceptionDispatchInfo exception;
-            Action<object> continuation = ContinuationSentinel.AvailableContinuation;
-            object state;
-            SynchronizationContext syncContext;
-            ExecutionContext execContext;
+            ExceptionDispatchInfo? exception;
+            Action<object?> continuation = ContinuationSentinel.AvailableContinuation;
+            Action<object?>? invokeContinuation;
+            object? state;
+            SynchronizationContext? syncContext;
+            ExecutionContext? execContext;
 
             public WhenAnyPromise(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3)
             {
@@ -656,11 +691,13 @@ namespace ValueTaskSupplement
 
                     if (execContext != null)
                     {
-                        ExecutionContext.Run(execContext, execContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        ExecutionContext.Run(execContext, execContextCallback, this);
                     }
                     else if (syncContext != null)
                     {
-                        syncContext.Post(syncContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        syncContext.Post(syncContextCallback, this);
                     }
                     else
                     {
@@ -686,14 +723,25 @@ namespace ValueTaskSupplement
                     : ValueTaskSourceStatus.Pending;
             }
 
-            public void OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+            public void OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
             {
-                if (Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation) != ContinuationSentinel.AvailableContinuation)
+                var c = Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation);
+                if (c == ContinuationSentinel.CompletedContinuation)
+                {
+                    continuation(state);
+                    return;
+                }
+
+                if (c != ContinuationSentinel.AvailableContinuation)
                 {
                     throw new InvalidOperationException("does not allow multiple await.");
                 }
 
-                this.state = state;
+                if (state == null)
+                {
+                    throw new InvalidOperationException("invalid state.");
+                }
+
                 if ((flags & ValueTaskSourceOnCompletedFlags.FlowExecutionContext) == ValueTaskSourceOnCompletedFlags.FlowExecutionContext)
                 {
                     execContext = ExecutionContext.Capture();
@@ -702,6 +750,7 @@ namespace ValueTaskSupplement
                 {
                     syncContext = SynchronizationContext.Current;
                 }
+                this.state = state;
 
                 if (GetStatus(token) != ValueTaskSourceStatus.Pending)
                 {
@@ -711,27 +760,29 @@ namespace ValueTaskSupplement
 
             static void ExecutionContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3>)state;
                 if (self.syncContext != null)
                 {
-                    SynchronizationContextCallback(state);
+                    self.syncContext.Post(syncContextCallback, self);
                 }
                 else
                 {
+                    var invokeContinuation = self.invokeContinuation!;
                     var invokeState = self.state;
+                    self.invokeContinuation = null;
                     self.state = null;
-                    t.Item1.Invoke(invokeState);
+                    invokeContinuation(invokeState);
                 }
             }
 
             static void SynchronizationContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3>)state;
+                var invokeContinuation = self.invokeContinuation!;
                 var invokeState = self.state;
+                self.invokeContinuation = null;
                 self.state = null;
-                t.Item1.Invoke(invokeState);
+                invokeContinuation(invokeState);
             }
         }
 
@@ -745,11 +796,11 @@ namespace ValueTaskSupplement
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
 
-            T0 t0 = default(T0);
-            T1 t1 = default(T1);
-            T2 t2 = default(T2);
-            T3 t3 = default(T3);
-            T4 t4 = default(T4);
+            T0 t0 = default!;
+            T1 t1 = default!;
+            T2 t2 = default!;
+            T3 t3 = default!;
+            T4 t4 = default!;
             ValueTaskAwaiter<T0> awaiter0;
             ValueTaskAwaiter<T1> awaiter1;
             ValueTaskAwaiter<T2> awaiter2;
@@ -758,11 +809,12 @@ namespace ValueTaskSupplement
 
             int completedCount = 0;
             int winArgumentIndex = -1;
-            ExceptionDispatchInfo exception;
-            Action<object> continuation = ContinuationSentinel.AvailableContinuation;
-            object state;
-            SynchronizationContext syncContext;
-            ExecutionContext execContext;
+            ExceptionDispatchInfo? exception;
+            Action<object?> continuation = ContinuationSentinel.AvailableContinuation;
+            Action<object?>? invokeContinuation;
+            object? state;
+            SynchronizationContext? syncContext;
+            ExecutionContext? execContext;
 
             public WhenAnyPromise(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4)
             {
@@ -976,11 +1028,13 @@ namespace ValueTaskSupplement
 
                     if (execContext != null)
                     {
-                        ExecutionContext.Run(execContext, execContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        ExecutionContext.Run(execContext, execContextCallback, this);
                     }
                     else if (syncContext != null)
                     {
-                        syncContext.Post(syncContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        syncContext.Post(syncContextCallback, this);
                     }
                     else
                     {
@@ -1006,14 +1060,25 @@ namespace ValueTaskSupplement
                     : ValueTaskSourceStatus.Pending;
             }
 
-            public void OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+            public void OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
             {
-                if (Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation) != ContinuationSentinel.AvailableContinuation)
+                var c = Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation);
+                if (c == ContinuationSentinel.CompletedContinuation)
+                {
+                    continuation(state);
+                    return;
+                }
+
+                if (c != ContinuationSentinel.AvailableContinuation)
                 {
                     throw new InvalidOperationException("does not allow multiple await.");
                 }
 
-                this.state = state;
+                if (state == null)
+                {
+                    throw new InvalidOperationException("invalid state.");
+                }
+
                 if ((flags & ValueTaskSourceOnCompletedFlags.FlowExecutionContext) == ValueTaskSourceOnCompletedFlags.FlowExecutionContext)
                 {
                     execContext = ExecutionContext.Capture();
@@ -1022,6 +1087,7 @@ namespace ValueTaskSupplement
                 {
                     syncContext = SynchronizationContext.Current;
                 }
+                this.state = state;
 
                 if (GetStatus(token) != ValueTaskSourceStatus.Pending)
                 {
@@ -1031,27 +1097,29 @@ namespace ValueTaskSupplement
 
             static void ExecutionContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3, T4>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3, T4>)state;
                 if (self.syncContext != null)
                 {
-                    SynchronizationContextCallback(state);
+                    self.syncContext.Post(syncContextCallback, self);
                 }
                 else
                 {
+                    var invokeContinuation = self.invokeContinuation!;
                     var invokeState = self.state;
+                    self.invokeContinuation = null;
                     self.state = null;
-                    t.Item1.Invoke(invokeState);
+                    invokeContinuation(invokeState);
                 }
             }
 
             static void SynchronizationContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3, T4>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3, T4>)state;
+                var invokeContinuation = self.invokeContinuation!;
                 var invokeState = self.state;
+                self.invokeContinuation = null;
                 self.state = null;
-                t.Item1.Invoke(invokeState);
+                invokeContinuation(invokeState);
             }
         }
 
@@ -1065,12 +1133,12 @@ namespace ValueTaskSupplement
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
 
-            T0 t0 = default(T0);
-            T1 t1 = default(T1);
-            T2 t2 = default(T2);
-            T3 t3 = default(T3);
-            T4 t4 = default(T4);
-            T5 t5 = default(T5);
+            T0 t0 = default!;
+            T1 t1 = default!;
+            T2 t2 = default!;
+            T3 t3 = default!;
+            T4 t4 = default!;
+            T5 t5 = default!;
             ValueTaskAwaiter<T0> awaiter0;
             ValueTaskAwaiter<T1> awaiter1;
             ValueTaskAwaiter<T2> awaiter2;
@@ -1080,11 +1148,12 @@ namespace ValueTaskSupplement
 
             int completedCount = 0;
             int winArgumentIndex = -1;
-            ExceptionDispatchInfo exception;
-            Action<object> continuation = ContinuationSentinel.AvailableContinuation;
-            object state;
-            SynchronizationContext syncContext;
-            ExecutionContext execContext;
+            ExceptionDispatchInfo? exception;
+            Action<object?> continuation = ContinuationSentinel.AvailableContinuation;
+            Action<object?>? invokeContinuation;
+            object? state;
+            SynchronizationContext? syncContext;
+            ExecutionContext? execContext;
 
             public WhenAnyPromise(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5)
             {
@@ -1335,11 +1404,13 @@ namespace ValueTaskSupplement
 
                     if (execContext != null)
                     {
-                        ExecutionContext.Run(execContext, execContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        ExecutionContext.Run(execContext, execContextCallback, this);
                     }
                     else if (syncContext != null)
                     {
-                        syncContext.Post(syncContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        syncContext.Post(syncContextCallback, this);
                     }
                     else
                     {
@@ -1365,14 +1436,25 @@ namespace ValueTaskSupplement
                     : ValueTaskSourceStatus.Pending;
             }
 
-            public void OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+            public void OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
             {
-                if (Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation) != ContinuationSentinel.AvailableContinuation)
+                var c = Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation);
+                if (c == ContinuationSentinel.CompletedContinuation)
+                {
+                    continuation(state);
+                    return;
+                }
+
+                if (c != ContinuationSentinel.AvailableContinuation)
                 {
                     throw new InvalidOperationException("does not allow multiple await.");
                 }
 
-                this.state = state;
+                if (state == null)
+                {
+                    throw new InvalidOperationException("invalid state.");
+                }
+
                 if ((flags & ValueTaskSourceOnCompletedFlags.FlowExecutionContext) == ValueTaskSourceOnCompletedFlags.FlowExecutionContext)
                 {
                     execContext = ExecutionContext.Capture();
@@ -1381,6 +1463,7 @@ namespace ValueTaskSupplement
                 {
                     syncContext = SynchronizationContext.Current;
                 }
+                this.state = state;
 
                 if (GetStatus(token) != ValueTaskSourceStatus.Pending)
                 {
@@ -1390,27 +1473,29 @@ namespace ValueTaskSupplement
 
             static void ExecutionContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3, T4, T5>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3, T4, T5>)state;
                 if (self.syncContext != null)
                 {
-                    SynchronizationContextCallback(state);
+                    self.syncContext.Post(syncContextCallback, self);
                 }
                 else
                 {
+                    var invokeContinuation = self.invokeContinuation!;
                     var invokeState = self.state;
+                    self.invokeContinuation = null;
                     self.state = null;
-                    t.Item1.Invoke(invokeState);
+                    invokeContinuation(invokeState);
                 }
             }
 
             static void SynchronizationContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3, T4, T5>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3, T4, T5>)state;
+                var invokeContinuation = self.invokeContinuation!;
                 var invokeState = self.state;
+                self.invokeContinuation = null;
                 self.state = null;
-                t.Item1.Invoke(invokeState);
+                invokeContinuation(invokeState);
             }
         }
 
@@ -1424,13 +1509,13 @@ namespace ValueTaskSupplement
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
 
-            T0 t0 = default(T0);
-            T1 t1 = default(T1);
-            T2 t2 = default(T2);
-            T3 t3 = default(T3);
-            T4 t4 = default(T4);
-            T5 t5 = default(T5);
-            T6 t6 = default(T6);
+            T0 t0 = default!;
+            T1 t1 = default!;
+            T2 t2 = default!;
+            T3 t3 = default!;
+            T4 t4 = default!;
+            T5 t5 = default!;
+            T6 t6 = default!;
             ValueTaskAwaiter<T0> awaiter0;
             ValueTaskAwaiter<T1> awaiter1;
             ValueTaskAwaiter<T2> awaiter2;
@@ -1441,11 +1526,12 @@ namespace ValueTaskSupplement
 
             int completedCount = 0;
             int winArgumentIndex = -1;
-            ExceptionDispatchInfo exception;
-            Action<object> continuation = ContinuationSentinel.AvailableContinuation;
-            object state;
-            SynchronizationContext syncContext;
-            ExecutionContext execContext;
+            ExceptionDispatchInfo? exception;
+            Action<object?> continuation = ContinuationSentinel.AvailableContinuation;
+            Action<object?>? invokeContinuation;
+            object? state;
+            SynchronizationContext? syncContext;
+            ExecutionContext? execContext;
 
             public WhenAnyPromise(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6)
             {
@@ -1733,11 +1819,13 @@ namespace ValueTaskSupplement
 
                     if (execContext != null)
                     {
-                        ExecutionContext.Run(execContext, execContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        ExecutionContext.Run(execContext, execContextCallback, this);
                     }
                     else if (syncContext != null)
                     {
-                        syncContext.Post(syncContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        syncContext.Post(syncContextCallback, this);
                     }
                     else
                     {
@@ -1763,14 +1851,25 @@ namespace ValueTaskSupplement
                     : ValueTaskSourceStatus.Pending;
             }
 
-            public void OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+            public void OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
             {
-                if (Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation) != ContinuationSentinel.AvailableContinuation)
+                var c = Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation);
+                if (c == ContinuationSentinel.CompletedContinuation)
+                {
+                    continuation(state);
+                    return;
+                }
+
+                if (c != ContinuationSentinel.AvailableContinuation)
                 {
                     throw new InvalidOperationException("does not allow multiple await.");
                 }
 
-                this.state = state;
+                if (state == null)
+                {
+                    throw new InvalidOperationException("invalid state.");
+                }
+
                 if ((flags & ValueTaskSourceOnCompletedFlags.FlowExecutionContext) == ValueTaskSourceOnCompletedFlags.FlowExecutionContext)
                 {
                     execContext = ExecutionContext.Capture();
@@ -1779,6 +1878,7 @@ namespace ValueTaskSupplement
                 {
                     syncContext = SynchronizationContext.Current;
                 }
+                this.state = state;
 
                 if (GetStatus(token) != ValueTaskSourceStatus.Pending)
                 {
@@ -1788,27 +1888,29 @@ namespace ValueTaskSupplement
 
             static void ExecutionContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6>)state;
                 if (self.syncContext != null)
                 {
-                    SynchronizationContextCallback(state);
+                    self.syncContext.Post(syncContextCallback, self);
                 }
                 else
                 {
+                    var invokeContinuation = self.invokeContinuation!;
                     var invokeState = self.state;
+                    self.invokeContinuation = null;
                     self.state = null;
-                    t.Item1.Invoke(invokeState);
+                    invokeContinuation(invokeState);
                 }
             }
 
             static void SynchronizationContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6>)state;
+                var invokeContinuation = self.invokeContinuation!;
                 var invokeState = self.state;
+                self.invokeContinuation = null;
                 self.state = null;
-                t.Item1.Invoke(invokeState);
+                invokeContinuation(invokeState);
             }
         }
 
@@ -1822,14 +1924,14 @@ namespace ValueTaskSupplement
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
 
-            T0 t0 = default(T0);
-            T1 t1 = default(T1);
-            T2 t2 = default(T2);
-            T3 t3 = default(T3);
-            T4 t4 = default(T4);
-            T5 t5 = default(T5);
-            T6 t6 = default(T6);
-            T7 t7 = default(T7);
+            T0 t0 = default!;
+            T1 t1 = default!;
+            T2 t2 = default!;
+            T3 t3 = default!;
+            T4 t4 = default!;
+            T5 t5 = default!;
+            T6 t6 = default!;
+            T7 t7 = default!;
             ValueTaskAwaiter<T0> awaiter0;
             ValueTaskAwaiter<T1> awaiter1;
             ValueTaskAwaiter<T2> awaiter2;
@@ -1841,11 +1943,12 @@ namespace ValueTaskSupplement
 
             int completedCount = 0;
             int winArgumentIndex = -1;
-            ExceptionDispatchInfo exception;
-            Action<object> continuation = ContinuationSentinel.AvailableContinuation;
-            object state;
-            SynchronizationContext syncContext;
-            ExecutionContext execContext;
+            ExceptionDispatchInfo? exception;
+            Action<object?> continuation = ContinuationSentinel.AvailableContinuation;
+            Action<object?>? invokeContinuation;
+            object? state;
+            SynchronizationContext? syncContext;
+            ExecutionContext? execContext;
 
             public WhenAnyPromise(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7)
             {
@@ -2170,11 +2273,13 @@ namespace ValueTaskSupplement
 
                     if (execContext != null)
                     {
-                        ExecutionContext.Run(execContext, execContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        ExecutionContext.Run(execContext, execContextCallback, this);
                     }
                     else if (syncContext != null)
                     {
-                        syncContext.Post(syncContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        syncContext.Post(syncContextCallback, this);
                     }
                     else
                     {
@@ -2200,14 +2305,25 @@ namespace ValueTaskSupplement
                     : ValueTaskSourceStatus.Pending;
             }
 
-            public void OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+            public void OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
             {
-                if (Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation) != ContinuationSentinel.AvailableContinuation)
+                var c = Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation);
+                if (c == ContinuationSentinel.CompletedContinuation)
+                {
+                    continuation(state);
+                    return;
+                }
+
+                if (c != ContinuationSentinel.AvailableContinuation)
                 {
                     throw new InvalidOperationException("does not allow multiple await.");
                 }
 
-                this.state = state;
+                if (state == null)
+                {
+                    throw new InvalidOperationException("invalid state.");
+                }
+
                 if ((flags & ValueTaskSourceOnCompletedFlags.FlowExecutionContext) == ValueTaskSourceOnCompletedFlags.FlowExecutionContext)
                 {
                     execContext = ExecutionContext.Capture();
@@ -2216,6 +2332,7 @@ namespace ValueTaskSupplement
                 {
                     syncContext = SynchronizationContext.Current;
                 }
+                this.state = state;
 
                 if (GetStatus(token) != ValueTaskSourceStatus.Pending)
                 {
@@ -2225,27 +2342,29 @@ namespace ValueTaskSupplement
 
             static void ExecutionContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7>)state;
                 if (self.syncContext != null)
                 {
-                    SynchronizationContextCallback(state);
+                    self.syncContext.Post(syncContextCallback, self);
                 }
                 else
                 {
+                    var invokeContinuation = self.invokeContinuation!;
                     var invokeState = self.state;
+                    self.invokeContinuation = null;
                     self.state = null;
-                    t.Item1.Invoke(invokeState);
+                    invokeContinuation(invokeState);
                 }
             }
 
             static void SynchronizationContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7>)state;
+                var invokeContinuation = self.invokeContinuation!;
                 var invokeState = self.state;
+                self.invokeContinuation = null;
                 self.state = null;
-                t.Item1.Invoke(invokeState);
+                invokeContinuation(invokeState);
             }
         }
 
@@ -2259,15 +2378,15 @@ namespace ValueTaskSupplement
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
 
-            T0 t0 = default(T0);
-            T1 t1 = default(T1);
-            T2 t2 = default(T2);
-            T3 t3 = default(T3);
-            T4 t4 = default(T4);
-            T5 t5 = default(T5);
-            T6 t6 = default(T6);
-            T7 t7 = default(T7);
-            T8 t8 = default(T8);
+            T0 t0 = default!;
+            T1 t1 = default!;
+            T2 t2 = default!;
+            T3 t3 = default!;
+            T4 t4 = default!;
+            T5 t5 = default!;
+            T6 t6 = default!;
+            T7 t7 = default!;
+            T8 t8 = default!;
             ValueTaskAwaiter<T0> awaiter0;
             ValueTaskAwaiter<T1> awaiter1;
             ValueTaskAwaiter<T2> awaiter2;
@@ -2280,11 +2399,12 @@ namespace ValueTaskSupplement
 
             int completedCount = 0;
             int winArgumentIndex = -1;
-            ExceptionDispatchInfo exception;
-            Action<object> continuation = ContinuationSentinel.AvailableContinuation;
-            object state;
-            SynchronizationContext syncContext;
-            ExecutionContext execContext;
+            ExceptionDispatchInfo? exception;
+            Action<object?> continuation = ContinuationSentinel.AvailableContinuation;
+            Action<object?>? invokeContinuation;
+            object? state;
+            SynchronizationContext? syncContext;
+            ExecutionContext? execContext;
 
             public WhenAnyPromise(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8)
             {
@@ -2646,11 +2766,13 @@ namespace ValueTaskSupplement
 
                     if (execContext != null)
                     {
-                        ExecutionContext.Run(execContext, execContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        ExecutionContext.Run(execContext, execContextCallback, this);
                     }
                     else if (syncContext != null)
                     {
-                        syncContext.Post(syncContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        syncContext.Post(syncContextCallback, this);
                     }
                     else
                     {
@@ -2676,14 +2798,25 @@ namespace ValueTaskSupplement
                     : ValueTaskSourceStatus.Pending;
             }
 
-            public void OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+            public void OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
             {
-                if (Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation) != ContinuationSentinel.AvailableContinuation)
+                var c = Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation);
+                if (c == ContinuationSentinel.CompletedContinuation)
+                {
+                    continuation(state);
+                    return;
+                }
+
+                if (c != ContinuationSentinel.AvailableContinuation)
                 {
                     throw new InvalidOperationException("does not allow multiple await.");
                 }
 
-                this.state = state;
+                if (state == null)
+                {
+                    throw new InvalidOperationException("invalid state.");
+                }
+
                 if ((flags & ValueTaskSourceOnCompletedFlags.FlowExecutionContext) == ValueTaskSourceOnCompletedFlags.FlowExecutionContext)
                 {
                     execContext = ExecutionContext.Capture();
@@ -2692,6 +2825,7 @@ namespace ValueTaskSupplement
                 {
                     syncContext = SynchronizationContext.Current;
                 }
+                this.state = state;
 
                 if (GetStatus(token) != ValueTaskSourceStatus.Pending)
                 {
@@ -2701,27 +2835,29 @@ namespace ValueTaskSupplement
 
             static void ExecutionContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8>)state;
                 if (self.syncContext != null)
                 {
-                    SynchronizationContextCallback(state);
+                    self.syncContext.Post(syncContextCallback, self);
                 }
                 else
                 {
+                    var invokeContinuation = self.invokeContinuation!;
                     var invokeState = self.state;
+                    self.invokeContinuation = null;
                     self.state = null;
-                    t.Item1.Invoke(invokeState);
+                    invokeContinuation(invokeState);
                 }
             }
 
             static void SynchronizationContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8>)state;
+                var invokeContinuation = self.invokeContinuation!;
                 var invokeState = self.state;
+                self.invokeContinuation = null;
                 self.state = null;
-                t.Item1.Invoke(invokeState);
+                invokeContinuation(invokeState);
             }
         }
 
@@ -2735,16 +2871,16 @@ namespace ValueTaskSupplement
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
 
-            T0 t0 = default(T0);
-            T1 t1 = default(T1);
-            T2 t2 = default(T2);
-            T3 t3 = default(T3);
-            T4 t4 = default(T4);
-            T5 t5 = default(T5);
-            T6 t6 = default(T6);
-            T7 t7 = default(T7);
-            T8 t8 = default(T8);
-            T9 t9 = default(T9);
+            T0 t0 = default!;
+            T1 t1 = default!;
+            T2 t2 = default!;
+            T3 t3 = default!;
+            T4 t4 = default!;
+            T5 t5 = default!;
+            T6 t6 = default!;
+            T7 t7 = default!;
+            T8 t8 = default!;
+            T9 t9 = default!;
             ValueTaskAwaiter<T0> awaiter0;
             ValueTaskAwaiter<T1> awaiter1;
             ValueTaskAwaiter<T2> awaiter2;
@@ -2758,11 +2894,12 @@ namespace ValueTaskSupplement
 
             int completedCount = 0;
             int winArgumentIndex = -1;
-            ExceptionDispatchInfo exception;
-            Action<object> continuation = ContinuationSentinel.AvailableContinuation;
-            object state;
-            SynchronizationContext syncContext;
-            ExecutionContext execContext;
+            ExceptionDispatchInfo? exception;
+            Action<object?> continuation = ContinuationSentinel.AvailableContinuation;
+            Action<object?>? invokeContinuation;
+            object? state;
+            SynchronizationContext? syncContext;
+            ExecutionContext? execContext;
 
             public WhenAnyPromise(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8, ValueTask<T9> task9)
             {
@@ -3161,11 +3298,13 @@ namespace ValueTaskSupplement
 
                     if (execContext != null)
                     {
-                        ExecutionContext.Run(execContext, execContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        ExecutionContext.Run(execContext, execContextCallback, this);
                     }
                     else if (syncContext != null)
                     {
-                        syncContext.Post(syncContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        syncContext.Post(syncContextCallback, this);
                     }
                     else
                     {
@@ -3191,14 +3330,25 @@ namespace ValueTaskSupplement
                     : ValueTaskSourceStatus.Pending;
             }
 
-            public void OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+            public void OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
             {
-                if (Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation) != ContinuationSentinel.AvailableContinuation)
+                var c = Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation);
+                if (c == ContinuationSentinel.CompletedContinuation)
+                {
+                    continuation(state);
+                    return;
+                }
+
+                if (c != ContinuationSentinel.AvailableContinuation)
                 {
                     throw new InvalidOperationException("does not allow multiple await.");
                 }
 
-                this.state = state;
+                if (state == null)
+                {
+                    throw new InvalidOperationException("invalid state.");
+                }
+
                 if ((flags & ValueTaskSourceOnCompletedFlags.FlowExecutionContext) == ValueTaskSourceOnCompletedFlags.FlowExecutionContext)
                 {
                     execContext = ExecutionContext.Capture();
@@ -3207,6 +3357,7 @@ namespace ValueTaskSupplement
                 {
                     syncContext = SynchronizationContext.Current;
                 }
+                this.state = state;
 
                 if (GetStatus(token) != ValueTaskSourceStatus.Pending)
                 {
@@ -3216,27 +3367,29 @@ namespace ValueTaskSupplement
 
             static void ExecutionContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>)state;
                 if (self.syncContext != null)
                 {
-                    SynchronizationContextCallback(state);
+                    self.syncContext.Post(syncContextCallback, self);
                 }
                 else
                 {
+                    var invokeContinuation = self.invokeContinuation!;
                     var invokeState = self.state;
+                    self.invokeContinuation = null;
                     self.state = null;
-                    t.Item1.Invoke(invokeState);
+                    invokeContinuation(invokeState);
                 }
             }
 
             static void SynchronizationContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>)state;
+                var invokeContinuation = self.invokeContinuation!;
                 var invokeState = self.state;
+                self.invokeContinuation = null;
                 self.state = null;
-                t.Item1.Invoke(invokeState);
+                invokeContinuation(invokeState);
             }
         }
 
@@ -3250,17 +3403,17 @@ namespace ValueTaskSupplement
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
 
-            T0 t0 = default(T0);
-            T1 t1 = default(T1);
-            T2 t2 = default(T2);
-            T3 t3 = default(T3);
-            T4 t4 = default(T4);
-            T5 t5 = default(T5);
-            T6 t6 = default(T6);
-            T7 t7 = default(T7);
-            T8 t8 = default(T8);
-            T9 t9 = default(T9);
-            T10 t10 = default(T10);
+            T0 t0 = default!;
+            T1 t1 = default!;
+            T2 t2 = default!;
+            T3 t3 = default!;
+            T4 t4 = default!;
+            T5 t5 = default!;
+            T6 t6 = default!;
+            T7 t7 = default!;
+            T8 t8 = default!;
+            T9 t9 = default!;
+            T10 t10 = default!;
             ValueTaskAwaiter<T0> awaiter0;
             ValueTaskAwaiter<T1> awaiter1;
             ValueTaskAwaiter<T2> awaiter2;
@@ -3275,11 +3428,12 @@ namespace ValueTaskSupplement
 
             int completedCount = 0;
             int winArgumentIndex = -1;
-            ExceptionDispatchInfo exception;
-            Action<object> continuation = ContinuationSentinel.AvailableContinuation;
-            object state;
-            SynchronizationContext syncContext;
-            ExecutionContext execContext;
+            ExceptionDispatchInfo? exception;
+            Action<object?> continuation = ContinuationSentinel.AvailableContinuation;
+            Action<object?>? invokeContinuation;
+            object? state;
+            SynchronizationContext? syncContext;
+            ExecutionContext? execContext;
 
             public WhenAnyPromise(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8, ValueTask<T9> task9, ValueTask<T10> task10)
             {
@@ -3715,11 +3869,13 @@ namespace ValueTaskSupplement
 
                     if (execContext != null)
                     {
-                        ExecutionContext.Run(execContext, execContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        ExecutionContext.Run(execContext, execContextCallback, this);
                     }
                     else if (syncContext != null)
                     {
-                        syncContext.Post(syncContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        syncContext.Post(syncContextCallback, this);
                     }
                     else
                     {
@@ -3745,14 +3901,25 @@ namespace ValueTaskSupplement
                     : ValueTaskSourceStatus.Pending;
             }
 
-            public void OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+            public void OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
             {
-                if (Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation) != ContinuationSentinel.AvailableContinuation)
+                var c = Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation);
+                if (c == ContinuationSentinel.CompletedContinuation)
+                {
+                    continuation(state);
+                    return;
+                }
+
+                if (c != ContinuationSentinel.AvailableContinuation)
                 {
                     throw new InvalidOperationException("does not allow multiple await.");
                 }
 
-                this.state = state;
+                if (state == null)
+                {
+                    throw new InvalidOperationException("invalid state.");
+                }
+
                 if ((flags & ValueTaskSourceOnCompletedFlags.FlowExecutionContext) == ValueTaskSourceOnCompletedFlags.FlowExecutionContext)
                 {
                     execContext = ExecutionContext.Capture();
@@ -3761,6 +3928,7 @@ namespace ValueTaskSupplement
                 {
                     syncContext = SynchronizationContext.Current;
                 }
+                this.state = state;
 
                 if (GetStatus(token) != ValueTaskSourceStatus.Pending)
                 {
@@ -3770,27 +3938,29 @@ namespace ValueTaskSupplement
 
             static void ExecutionContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>)state;
                 if (self.syncContext != null)
                 {
-                    SynchronizationContextCallback(state);
+                    self.syncContext.Post(syncContextCallback, self);
                 }
                 else
                 {
+                    var invokeContinuation = self.invokeContinuation!;
                     var invokeState = self.state;
+                    self.invokeContinuation = null;
                     self.state = null;
-                    t.Item1.Invoke(invokeState);
+                    invokeContinuation(invokeState);
                 }
             }
 
             static void SynchronizationContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>)state;
+                var invokeContinuation = self.invokeContinuation!;
                 var invokeState = self.state;
+                self.invokeContinuation = null;
                 self.state = null;
-                t.Item1.Invoke(invokeState);
+                invokeContinuation(invokeState);
             }
         }
 
@@ -3804,18 +3974,18 @@ namespace ValueTaskSupplement
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
 
-            T0 t0 = default(T0);
-            T1 t1 = default(T1);
-            T2 t2 = default(T2);
-            T3 t3 = default(T3);
-            T4 t4 = default(T4);
-            T5 t5 = default(T5);
-            T6 t6 = default(T6);
-            T7 t7 = default(T7);
-            T8 t8 = default(T8);
-            T9 t9 = default(T9);
-            T10 t10 = default(T10);
-            T11 t11 = default(T11);
+            T0 t0 = default!;
+            T1 t1 = default!;
+            T2 t2 = default!;
+            T3 t3 = default!;
+            T4 t4 = default!;
+            T5 t5 = default!;
+            T6 t6 = default!;
+            T7 t7 = default!;
+            T8 t8 = default!;
+            T9 t9 = default!;
+            T10 t10 = default!;
+            T11 t11 = default!;
             ValueTaskAwaiter<T0> awaiter0;
             ValueTaskAwaiter<T1> awaiter1;
             ValueTaskAwaiter<T2> awaiter2;
@@ -3831,11 +4001,12 @@ namespace ValueTaskSupplement
 
             int completedCount = 0;
             int winArgumentIndex = -1;
-            ExceptionDispatchInfo exception;
-            Action<object> continuation = ContinuationSentinel.AvailableContinuation;
-            object state;
-            SynchronizationContext syncContext;
-            ExecutionContext execContext;
+            ExceptionDispatchInfo? exception;
+            Action<object?> continuation = ContinuationSentinel.AvailableContinuation;
+            Action<object?>? invokeContinuation;
+            object? state;
+            SynchronizationContext? syncContext;
+            ExecutionContext? execContext;
 
             public WhenAnyPromise(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8, ValueTask<T9> task9, ValueTask<T10> task10, ValueTask<T11> task11)
             {
@@ -4308,11 +4479,13 @@ namespace ValueTaskSupplement
 
                     if (execContext != null)
                     {
-                        ExecutionContext.Run(execContext, execContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        ExecutionContext.Run(execContext, execContextCallback, this);
                     }
                     else if (syncContext != null)
                     {
-                        syncContext.Post(syncContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        syncContext.Post(syncContextCallback, this);
                     }
                     else
                     {
@@ -4338,14 +4511,25 @@ namespace ValueTaskSupplement
                     : ValueTaskSourceStatus.Pending;
             }
 
-            public void OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+            public void OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
             {
-                if (Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation) != ContinuationSentinel.AvailableContinuation)
+                var c = Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation);
+                if (c == ContinuationSentinel.CompletedContinuation)
+                {
+                    continuation(state);
+                    return;
+                }
+
+                if (c != ContinuationSentinel.AvailableContinuation)
                 {
                     throw new InvalidOperationException("does not allow multiple await.");
                 }
 
-                this.state = state;
+                if (state == null)
+                {
+                    throw new InvalidOperationException("invalid state.");
+                }
+
                 if ((flags & ValueTaskSourceOnCompletedFlags.FlowExecutionContext) == ValueTaskSourceOnCompletedFlags.FlowExecutionContext)
                 {
                     execContext = ExecutionContext.Capture();
@@ -4354,6 +4538,7 @@ namespace ValueTaskSupplement
                 {
                     syncContext = SynchronizationContext.Current;
                 }
+                this.state = state;
 
                 if (GetStatus(token) != ValueTaskSourceStatus.Pending)
                 {
@@ -4363,27 +4548,29 @@ namespace ValueTaskSupplement
 
             static void ExecutionContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>)state;
                 if (self.syncContext != null)
                 {
-                    SynchronizationContextCallback(state);
+                    self.syncContext.Post(syncContextCallback, self);
                 }
                 else
                 {
+                    var invokeContinuation = self.invokeContinuation!;
                     var invokeState = self.state;
+                    self.invokeContinuation = null;
                     self.state = null;
-                    t.Item1.Invoke(invokeState);
+                    invokeContinuation(invokeState);
                 }
             }
 
             static void SynchronizationContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>)state;
+                var invokeContinuation = self.invokeContinuation!;
                 var invokeState = self.state;
+                self.invokeContinuation = null;
                 self.state = null;
-                t.Item1.Invoke(invokeState);
+                invokeContinuation(invokeState);
             }
         }
 
@@ -4397,19 +4584,19 @@ namespace ValueTaskSupplement
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
 
-            T0 t0 = default(T0);
-            T1 t1 = default(T1);
-            T2 t2 = default(T2);
-            T3 t3 = default(T3);
-            T4 t4 = default(T4);
-            T5 t5 = default(T5);
-            T6 t6 = default(T6);
-            T7 t7 = default(T7);
-            T8 t8 = default(T8);
-            T9 t9 = default(T9);
-            T10 t10 = default(T10);
-            T11 t11 = default(T11);
-            T12 t12 = default(T12);
+            T0 t0 = default!;
+            T1 t1 = default!;
+            T2 t2 = default!;
+            T3 t3 = default!;
+            T4 t4 = default!;
+            T5 t5 = default!;
+            T6 t6 = default!;
+            T7 t7 = default!;
+            T8 t8 = default!;
+            T9 t9 = default!;
+            T10 t10 = default!;
+            T11 t11 = default!;
+            T12 t12 = default!;
             ValueTaskAwaiter<T0> awaiter0;
             ValueTaskAwaiter<T1> awaiter1;
             ValueTaskAwaiter<T2> awaiter2;
@@ -4426,11 +4613,12 @@ namespace ValueTaskSupplement
 
             int completedCount = 0;
             int winArgumentIndex = -1;
-            ExceptionDispatchInfo exception;
-            Action<object> continuation = ContinuationSentinel.AvailableContinuation;
-            object state;
-            SynchronizationContext syncContext;
-            ExecutionContext execContext;
+            ExceptionDispatchInfo? exception;
+            Action<object?> continuation = ContinuationSentinel.AvailableContinuation;
+            Action<object?>? invokeContinuation;
+            object? state;
+            SynchronizationContext? syncContext;
+            ExecutionContext? execContext;
 
             public WhenAnyPromise(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8, ValueTask<T9> task9, ValueTask<T10> task10, ValueTask<T11> task11, ValueTask<T12> task12)
             {
@@ -4940,11 +5128,13 @@ namespace ValueTaskSupplement
 
                     if (execContext != null)
                     {
-                        ExecutionContext.Run(execContext, execContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        ExecutionContext.Run(execContext, execContextCallback, this);
                     }
                     else if (syncContext != null)
                     {
-                        syncContext.Post(syncContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        syncContext.Post(syncContextCallback, this);
                     }
                     else
                     {
@@ -4970,14 +5160,25 @@ namespace ValueTaskSupplement
                     : ValueTaskSourceStatus.Pending;
             }
 
-            public void OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+            public void OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
             {
-                if (Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation) != ContinuationSentinel.AvailableContinuation)
+                var c = Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation);
+                if (c == ContinuationSentinel.CompletedContinuation)
+                {
+                    continuation(state);
+                    return;
+                }
+
+                if (c != ContinuationSentinel.AvailableContinuation)
                 {
                     throw new InvalidOperationException("does not allow multiple await.");
                 }
 
-                this.state = state;
+                if (state == null)
+                {
+                    throw new InvalidOperationException("invalid state.");
+                }
+
                 if ((flags & ValueTaskSourceOnCompletedFlags.FlowExecutionContext) == ValueTaskSourceOnCompletedFlags.FlowExecutionContext)
                 {
                     execContext = ExecutionContext.Capture();
@@ -4986,6 +5187,7 @@ namespace ValueTaskSupplement
                 {
                     syncContext = SynchronizationContext.Current;
                 }
+                this.state = state;
 
                 if (GetStatus(token) != ValueTaskSourceStatus.Pending)
                 {
@@ -4995,27 +5197,29 @@ namespace ValueTaskSupplement
 
             static void ExecutionContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>)state;
                 if (self.syncContext != null)
                 {
-                    SynchronizationContextCallback(state);
+                    self.syncContext.Post(syncContextCallback, self);
                 }
                 else
                 {
+                    var invokeContinuation = self.invokeContinuation!;
                     var invokeState = self.state;
+                    self.invokeContinuation = null;
                     self.state = null;
-                    t.Item1.Invoke(invokeState);
+                    invokeContinuation(invokeState);
                 }
             }
 
             static void SynchronizationContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>)state;
+                var invokeContinuation = self.invokeContinuation!;
                 var invokeState = self.state;
+                self.invokeContinuation = null;
                 self.state = null;
-                t.Item1.Invoke(invokeState);
+                invokeContinuation(invokeState);
             }
         }
 
@@ -5029,20 +5233,20 @@ namespace ValueTaskSupplement
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
 
-            T0 t0 = default(T0);
-            T1 t1 = default(T1);
-            T2 t2 = default(T2);
-            T3 t3 = default(T3);
-            T4 t4 = default(T4);
-            T5 t5 = default(T5);
-            T6 t6 = default(T6);
-            T7 t7 = default(T7);
-            T8 t8 = default(T8);
-            T9 t9 = default(T9);
-            T10 t10 = default(T10);
-            T11 t11 = default(T11);
-            T12 t12 = default(T12);
-            T13 t13 = default(T13);
+            T0 t0 = default!;
+            T1 t1 = default!;
+            T2 t2 = default!;
+            T3 t3 = default!;
+            T4 t4 = default!;
+            T5 t5 = default!;
+            T6 t6 = default!;
+            T7 t7 = default!;
+            T8 t8 = default!;
+            T9 t9 = default!;
+            T10 t10 = default!;
+            T11 t11 = default!;
+            T12 t12 = default!;
+            T13 t13 = default!;
             ValueTaskAwaiter<T0> awaiter0;
             ValueTaskAwaiter<T1> awaiter1;
             ValueTaskAwaiter<T2> awaiter2;
@@ -5060,11 +5264,12 @@ namespace ValueTaskSupplement
 
             int completedCount = 0;
             int winArgumentIndex = -1;
-            ExceptionDispatchInfo exception;
-            Action<object> continuation = ContinuationSentinel.AvailableContinuation;
-            object state;
-            SynchronizationContext syncContext;
-            ExecutionContext execContext;
+            ExceptionDispatchInfo? exception;
+            Action<object?> continuation = ContinuationSentinel.AvailableContinuation;
+            Action<object?>? invokeContinuation;
+            object? state;
+            SynchronizationContext? syncContext;
+            ExecutionContext? execContext;
 
             public WhenAnyPromise(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8, ValueTask<T9> task9, ValueTask<T10> task10, ValueTask<T11> task11, ValueTask<T12> task12, ValueTask<T13> task13)
             {
@@ -5611,11 +5816,13 @@ namespace ValueTaskSupplement
 
                     if (execContext != null)
                     {
-                        ExecutionContext.Run(execContext, execContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        ExecutionContext.Run(execContext, execContextCallback, this);
                     }
                     else if (syncContext != null)
                     {
-                        syncContext.Post(syncContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        syncContext.Post(syncContextCallback, this);
                     }
                     else
                     {
@@ -5641,14 +5848,25 @@ namespace ValueTaskSupplement
                     : ValueTaskSourceStatus.Pending;
             }
 
-            public void OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+            public void OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
             {
-                if (Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation) != ContinuationSentinel.AvailableContinuation)
+                var c = Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation);
+                if (c == ContinuationSentinel.CompletedContinuation)
+                {
+                    continuation(state);
+                    return;
+                }
+
+                if (c != ContinuationSentinel.AvailableContinuation)
                 {
                     throw new InvalidOperationException("does not allow multiple await.");
                 }
 
-                this.state = state;
+                if (state == null)
+                {
+                    throw new InvalidOperationException("invalid state.");
+                }
+
                 if ((flags & ValueTaskSourceOnCompletedFlags.FlowExecutionContext) == ValueTaskSourceOnCompletedFlags.FlowExecutionContext)
                 {
                     execContext = ExecutionContext.Capture();
@@ -5657,6 +5875,7 @@ namespace ValueTaskSupplement
                 {
                     syncContext = SynchronizationContext.Current;
                 }
+                this.state = state;
 
                 if (GetStatus(token) != ValueTaskSourceStatus.Pending)
                 {
@@ -5666,27 +5885,29 @@ namespace ValueTaskSupplement
 
             static void ExecutionContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>)state;
                 if (self.syncContext != null)
                 {
-                    SynchronizationContextCallback(state);
+                    self.syncContext.Post(syncContextCallback, self);
                 }
                 else
                 {
+                    var invokeContinuation = self.invokeContinuation!;
                     var invokeState = self.state;
+                    self.invokeContinuation = null;
                     self.state = null;
-                    t.Item1.Invoke(invokeState);
+                    invokeContinuation(invokeState);
                 }
             }
 
             static void SynchronizationContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>)state;
+                var invokeContinuation = self.invokeContinuation!;
                 var invokeState = self.state;
+                self.invokeContinuation = null;
                 self.state = null;
-                t.Item1.Invoke(invokeState);
+                invokeContinuation(invokeState);
             }
         }
 
@@ -5700,21 +5921,21 @@ namespace ValueTaskSupplement
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
 
-            T0 t0 = default(T0);
-            T1 t1 = default(T1);
-            T2 t2 = default(T2);
-            T3 t3 = default(T3);
-            T4 t4 = default(T4);
-            T5 t5 = default(T5);
-            T6 t6 = default(T6);
-            T7 t7 = default(T7);
-            T8 t8 = default(T8);
-            T9 t9 = default(T9);
-            T10 t10 = default(T10);
-            T11 t11 = default(T11);
-            T12 t12 = default(T12);
-            T13 t13 = default(T13);
-            T14 t14 = default(T14);
+            T0 t0 = default!;
+            T1 t1 = default!;
+            T2 t2 = default!;
+            T3 t3 = default!;
+            T4 t4 = default!;
+            T5 t5 = default!;
+            T6 t6 = default!;
+            T7 t7 = default!;
+            T8 t8 = default!;
+            T9 t9 = default!;
+            T10 t10 = default!;
+            T11 t11 = default!;
+            T12 t12 = default!;
+            T13 t13 = default!;
+            T14 t14 = default!;
             ValueTaskAwaiter<T0> awaiter0;
             ValueTaskAwaiter<T1> awaiter1;
             ValueTaskAwaiter<T2> awaiter2;
@@ -5733,11 +5954,12 @@ namespace ValueTaskSupplement
 
             int completedCount = 0;
             int winArgumentIndex = -1;
-            ExceptionDispatchInfo exception;
-            Action<object> continuation = ContinuationSentinel.AvailableContinuation;
-            object state;
-            SynchronizationContext syncContext;
-            ExecutionContext execContext;
+            ExceptionDispatchInfo? exception;
+            Action<object?> continuation = ContinuationSentinel.AvailableContinuation;
+            Action<object?>? invokeContinuation;
+            object? state;
+            SynchronizationContext? syncContext;
+            ExecutionContext? execContext;
 
             public WhenAnyPromise(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8, ValueTask<T9> task9, ValueTask<T10> task10, ValueTask<T11> task11, ValueTask<T12> task12, ValueTask<T13> task13, ValueTask<T14> task14)
             {
@@ -6321,11 +6543,13 @@ namespace ValueTaskSupplement
 
                     if (execContext != null)
                     {
-                        ExecutionContext.Run(execContext, execContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        ExecutionContext.Run(execContext, execContextCallback, this);
                     }
                     else if (syncContext != null)
                     {
-                        syncContext.Post(syncContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        syncContext.Post(syncContextCallback, this);
                     }
                     else
                     {
@@ -6351,14 +6575,25 @@ namespace ValueTaskSupplement
                     : ValueTaskSourceStatus.Pending;
             }
 
-            public void OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+            public void OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
             {
-                if (Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation) != ContinuationSentinel.AvailableContinuation)
+                var c = Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation);
+                if (c == ContinuationSentinel.CompletedContinuation)
+                {
+                    continuation(state);
+                    return;
+                }
+
+                if (c != ContinuationSentinel.AvailableContinuation)
                 {
                     throw new InvalidOperationException("does not allow multiple await.");
                 }
 
-                this.state = state;
+                if (state == null)
+                {
+                    throw new InvalidOperationException("invalid state.");
+                }
+
                 if ((flags & ValueTaskSourceOnCompletedFlags.FlowExecutionContext) == ValueTaskSourceOnCompletedFlags.FlowExecutionContext)
                 {
                     execContext = ExecutionContext.Capture();
@@ -6367,6 +6602,7 @@ namespace ValueTaskSupplement
                 {
                     syncContext = SynchronizationContext.Current;
                 }
+                this.state = state;
 
                 if (GetStatus(token) != ValueTaskSourceStatus.Pending)
                 {
@@ -6376,27 +6612,29 @@ namespace ValueTaskSupplement
 
             static void ExecutionContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>)state;
                 if (self.syncContext != null)
                 {
-                    SynchronizationContextCallback(state);
+                    self.syncContext.Post(syncContextCallback, self);
                 }
                 else
                 {
+                    var invokeContinuation = self.invokeContinuation!;
                     var invokeState = self.state;
+                    self.invokeContinuation = null;
                     self.state = null;
-                    t.Item1.Invoke(invokeState);
+                    invokeContinuation(invokeState);
                 }
             }
 
             static void SynchronizationContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>)state;
+                var invokeContinuation = self.invokeContinuation!;
                 var invokeState = self.state;
+                self.invokeContinuation = null;
                 self.state = null;
-                t.Item1.Invoke(invokeState);
+                invokeContinuation(invokeState);
             }
         }
 
@@ -6410,22 +6648,22 @@ namespace ValueTaskSupplement
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;
 
-            T0 t0 = default(T0);
-            T1 t1 = default(T1);
-            T2 t2 = default(T2);
-            T3 t3 = default(T3);
-            T4 t4 = default(T4);
-            T5 t5 = default(T5);
-            T6 t6 = default(T6);
-            T7 t7 = default(T7);
-            T8 t8 = default(T8);
-            T9 t9 = default(T9);
-            T10 t10 = default(T10);
-            T11 t11 = default(T11);
-            T12 t12 = default(T12);
-            T13 t13 = default(T13);
-            T14 t14 = default(T14);
-            T15 t15 = default(T15);
+            T0 t0 = default!;
+            T1 t1 = default!;
+            T2 t2 = default!;
+            T3 t3 = default!;
+            T4 t4 = default!;
+            T5 t5 = default!;
+            T6 t6 = default!;
+            T7 t7 = default!;
+            T8 t8 = default!;
+            T9 t9 = default!;
+            T10 t10 = default!;
+            T11 t11 = default!;
+            T12 t12 = default!;
+            T13 t13 = default!;
+            T14 t14 = default!;
+            T15 t15 = default!;
             ValueTaskAwaiter<T0> awaiter0;
             ValueTaskAwaiter<T1> awaiter1;
             ValueTaskAwaiter<T2> awaiter2;
@@ -6445,11 +6683,12 @@ namespace ValueTaskSupplement
 
             int completedCount = 0;
             int winArgumentIndex = -1;
-            ExceptionDispatchInfo exception;
-            Action<object> continuation = ContinuationSentinel.AvailableContinuation;
-            object state;
-            SynchronizationContext syncContext;
-            ExecutionContext execContext;
+            ExceptionDispatchInfo? exception;
+            Action<object?> continuation = ContinuationSentinel.AvailableContinuation;
+            Action<object?>? invokeContinuation;
+            object? state;
+            SynchronizationContext? syncContext;
+            ExecutionContext? execContext;
 
             public WhenAnyPromise(ValueTask<T0> task0, ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5, ValueTask<T6> task6, ValueTask<T7> task7, ValueTask<T8> task8, ValueTask<T9> task9, ValueTask<T10> task10, ValueTask<T11> task11, ValueTask<T12> task12, ValueTask<T13> task13, ValueTask<T14> task14, ValueTask<T15> task15)
             {
@@ -7070,11 +7309,13 @@ namespace ValueTaskSupplement
 
                     if (execContext != null)
                     {
-                        ExecutionContext.Run(execContext, execContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        ExecutionContext.Run(execContext, execContextCallback, this);
                     }
                     else if (syncContext != null)
                     {
-                        syncContext.Post(syncContextCallback, Tuple.Create(c, this));
+                        invokeContinuation = c;
+                        syncContext.Post(syncContextCallback, this);
                     }
                     else
                     {
@@ -7100,14 +7341,25 @@ namespace ValueTaskSupplement
                     : ValueTaskSourceStatus.Pending;
             }
 
-            public void OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+            public void OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
             {
-                if (Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation) != ContinuationSentinel.AvailableContinuation)
+                var c = Interlocked.CompareExchange(ref this.continuation, continuation, ContinuationSentinel.AvailableContinuation);
+                if (c == ContinuationSentinel.CompletedContinuation)
+                {
+                    continuation(state);
+                    return;
+                }
+
+                if (c != ContinuationSentinel.AvailableContinuation)
                 {
                     throw new InvalidOperationException("does not allow multiple await.");
                 }
 
-                this.state = state;
+                if (state == null)
+                {
+                    throw new InvalidOperationException("invalid state.");
+                }
+
                 if ((flags & ValueTaskSourceOnCompletedFlags.FlowExecutionContext) == ValueTaskSourceOnCompletedFlags.FlowExecutionContext)
                 {
                     execContext = ExecutionContext.Capture();
@@ -7116,6 +7368,7 @@ namespace ValueTaskSupplement
                 {
                     syncContext = SynchronizationContext.Current;
                 }
+                this.state = state;
 
                 if (GetStatus(token) != ValueTaskSourceStatus.Pending)
                 {
@@ -7125,27 +7378,29 @@ namespace ValueTaskSupplement
 
             static void ExecutionContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>)state;
                 if (self.syncContext != null)
                 {
-                    SynchronizationContextCallback(state);
+                    self.syncContext.Post(syncContextCallback, self);
                 }
                 else
                 {
+                    var invokeContinuation = self.invokeContinuation!;
                     var invokeState = self.state;
+                    self.invokeContinuation = null;
                     self.state = null;
-                    t.Item1.Invoke(invokeState);
+                    invokeContinuation(invokeState);
                 }
             }
 
             static void SynchronizationContextCallback(object state)
             {
-                var t = (Tuple<Action<object>, WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>>)state;
-                var self = t.Item2;
+                var self = (WhenAnyPromise<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>)state;
+                var invokeContinuation = self.invokeContinuation!;
                 var invokeState = self.state;
+                self.invokeContinuation = null;
                 self.state = null;
-                t.Item1.Invoke(invokeState);
+                invokeContinuation(invokeState);
             }
         }
 

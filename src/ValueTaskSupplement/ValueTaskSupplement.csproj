@@ -2,6 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>8.0</LangVersion>
+        <Nullable>enable</Nullable>
         <OutputType>Library</OutputType>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
         <Company>Cysharp</Company>
@@ -28,42 +30,42 @@
 
     <ItemGroup>
         <None Update="ValueTaskEx.WhenAll.tt">
-          <Generator>TextTemplatingFileGenerator</Generator>
-          <LastGenOutput>ValueTaskEx.WhenAll.cs</LastGenOutput>
+            <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>ValueTaskEx.WhenAll.cs</LastGenOutput>
         </None>
         <None Update="ValueTaskEx.WhenAll_NonGenerics.tt">
-          <LastGenOutput>ValueTaskEx.WhenAll_NonGenerics.cs</LastGenOutput>
-          <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>ValueTaskEx.WhenAll_NonGenerics.cs</LastGenOutput>
+            <Generator>TextTemplatingFileGenerator</Generator>
         </None>
         <None Update="ValueTaskEx.WhenAny.tt">
-          <Generator>TextTemplatingFileGenerator</Generator>
-          <LastGenOutput>ValueTaskEx.WhenAny.cs</LastGenOutput>
+            <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>ValueTaskEx.WhenAny.cs</LastGenOutput>
         </None>
         <None Update="ValueTaskEx.WhenAny_NonGenerics.tt">
-          <LastGenOutput>ValueTaskEx.WhenAny_NonGenerics.cs</LastGenOutput>
-          <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>ValueTaskEx.WhenAny_NonGenerics.cs</LastGenOutput>
+            <Generator>TextTemplatingFileGenerator</Generator>
         </None>
         <None Update="ValueTaskWhenAllExtensions.tt">
-          <Generator>TextTemplatingFileGenerator</Generator>
-          <LastGenOutput>ValueTaskWhenAllExtensions.cs</LastGenOutput>
+            <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>ValueTaskWhenAllExtensions.cs</LastGenOutput>
         </None>
     </ItemGroup>
 
     <ItemGroup>
         <Compile Update="ValueTaskEx.WhenAll.cs">
-          <DesignTime>True</DesignTime>
-          <AutoGen>True</AutoGen>
-          <DependentUpon>ValueTaskEx.WhenAll.tt</DependentUpon>
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>ValueTaskEx.WhenAll.tt</DependentUpon>
         </Compile>
         <Compile Update="ValueTaskEx.WhenAll_NonGenerics.cs">
-          <DesignTime>True</DesignTime>
-          <AutoGen>True</AutoGen>
-          <DependentUpon>ValueTaskEx.WhenAll_NonGenerics.tt</DependentUpon>
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>ValueTaskEx.WhenAll_NonGenerics.tt</DependentUpon>
         </Compile>
         <Compile Update="ValueTaskEx.WhenAny.cs">
-          <DesignTime>True</DesignTime>
-          <AutoGen>True</AutoGen>
-          <DependentUpon>ValueTaskEx.WhenAny.tt</DependentUpon>
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>ValueTaskEx.WhenAny.tt</DependentUpon>
         </Compile>
         <Compile Update="ValueTaskEx.WhenAny_NonGenerics.cs">
             <DesignTime>True</DesignTime>
@@ -71,14 +73,14 @@
             <DependentUpon>ValueTaskEx.WhenAny_NonGenerics.tt</DependentUpon>
         </Compile>
         <Compile Update="ValueTaskWhenAllExtensions.cs">
-          <DesignTime>True</DesignTime>
-          <AutoGen>True</AutoGen>
-          <DependentUpon>ValueTaskWhenAllExtensions.tt</DependentUpon>
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>ValueTaskWhenAllExtensions.tt</DependentUpon>
         </Compile>
     </ItemGroup>
 
     <ItemGroup>
-      <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+        <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
     </ItemGroup>
 
 </Project>

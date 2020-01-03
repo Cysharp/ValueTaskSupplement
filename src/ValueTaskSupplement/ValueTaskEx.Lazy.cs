@@ -14,7 +14,7 @@ namespace ValueTaskSupplement
         }
     }
 
-    public class AsyncLazy<T>
+    public readonly struct AsyncLazy<T>
     {
         readonly ValueTask<T> innerTask;
 
@@ -67,20 +67,23 @@ namespace ValueTaskSupplement
                     : ValueTaskSourceStatus.Pending;
             }
 
-            public void OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+            public void OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
             {
                 var task = GetSource();
                 if (task.IsCompleted)
                 {
                     continuation(state);
                 }
-                OnCompletedSlow(task, continuation, state, flags);
+                else
+                {
+                    OnCompletedSlow(task, continuation, state, flags);
+                }
             }
 
-            static async void OnCompletedSlow(ValueTask<T> source, Action<object> continuation, object state, ValueTaskSourceOnCompletedFlags flags)
+            static async void OnCompletedSlow(ValueTask<T> source, Action<object?> continuation, object? state, ValueTaskSourceOnCompletedFlags flags)
             {
-                ExecutionContext execContext = null;
-                SynchronizationContext syncContext = null;
+                ExecutionContext? execContext = null;
+                SynchronizationContext? syncContext = null;
                 if ((flags & ValueTaskSourceOnCompletedFlags.FlowExecutionContext) == ValueTaskSourceOnCompletedFlags.FlowExecutionContext)
                 {
                     execContext = ExecutionContext.Capture();
@@ -90,7 +93,11 @@ namespace ValueTaskSupplement
                     syncContext = SynchronizationContext.Current;
                 }
 
-                await source.ConfigureAwait(false);
+                try
+                {
+                    await source.ConfigureAwait(false);
+                }
+                catch { }
 
                 if (execContext != null)
                 {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Sources;
@@ -7,9 +8,28 @@ namespace ValueTaskSupplement
 {
     public static partial class ValueTaskEx
     {
-        public static ValueTask Lazy(Func<ValueTask> factory)
+        public static AsyncLazy Lazy(Func<ValueTask> factory)
         {
-            return new ValueTask(new AsyncLazySource(factory), 0);
+            return new AsyncLazy(factory);
+        }
+    }
+
+    public readonly struct AsyncLazy
+    {
+        readonly ValueTask innerTask;
+
+        public AsyncLazy(Func<ValueTask> factory)
+        {
+            innerTask = new ValueTask(new AsyncLazySource(factory), 0);
+        }
+
+        public ValueTask AsValueTask() => innerTask;
+
+        public ValueTaskAwaiter GetAwaiter() => innerTask.GetAwaiter();
+
+        public static implicit operator ValueTask(AsyncLazy source)
+        {
+            return source.AsValueTask();
         }
 
         class AsyncLazySource : IValueTaskSource
@@ -47,20 +67,23 @@ namespace ValueTaskSupplement
                     : ValueTaskSourceStatus.Pending;
             }
 
-            public void OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+            public void OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
             {
                 var task = GetSource();
                 if (task.IsCompleted)
                 {
                     continuation(state);
                 }
-                OnCompletedSlow(task, continuation, state, flags);
+                else
+                {
+                    OnCompletedSlow(task, continuation, state, flags);
+                }
             }
 
-            static async void OnCompletedSlow(ValueTask source, Action<object> continuation, object state, ValueTaskSourceOnCompletedFlags flags)
+            static async void OnCompletedSlow(ValueTask source, Action<object?> continuation, object? state, ValueTaskSourceOnCompletedFlags flags)
             {
-                ExecutionContext execContext = null;
-                SynchronizationContext syncContext = null;
+                ExecutionContext? execContext = null;
+                SynchronizationContext? syncContext = null;
                 if ((flags & ValueTaskSourceOnCompletedFlags.FlowExecutionContext) == ValueTaskSourceOnCompletedFlags.FlowExecutionContext)
                 {
                     execContext = ExecutionContext.Capture();
@@ -70,7 +93,11 @@ namespace ValueTaskSupplement
                     syncContext = SynchronizationContext.Current;
                 }
 
-                await source.ConfigureAwait(false);
+                try
+                {
+                    await source.ConfigureAwait(false);
+                }
+                catch { }
 
                 if (execContext != null)
                 {

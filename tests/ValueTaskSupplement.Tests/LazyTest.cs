@@ -31,10 +31,11 @@ namespace ValueTaskSupplement.Tests
         public async Task Async()
         {
             var calledCount = 0;
-            var syncLazy = ValueTaskEx.Lazy(async () => { calledCount++; await Task.Delay(TimeSpan.FromSeconds(1)); return new object(); });
+            var asyncLazyOriginal = ValueTaskEx.Lazy(async () => { calledCount++; await Task.Delay(TimeSpan.FromSeconds(1)); return new object(); });
+            var asyncLazy = asyncLazyOriginal;
             calledCount.Should().Be(0);
 
-            var (v1, v2, v3) = await ValueTaskEx.WhenAll(syncLazy.AsValueTask(), syncLazy.AsValueTask(), syncLazy.AsValueTask());
+            var (v1, v2, v3) = await ValueTaskEx.WhenAll(asyncLazy.AsValueTask(), asyncLazy.AsValueTask(), asyncLazyOriginal.AsValueTask());
 
             calledCount.Should().Be(1);
 
