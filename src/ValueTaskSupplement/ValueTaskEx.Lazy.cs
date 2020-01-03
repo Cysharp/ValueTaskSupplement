@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Sources;
@@ -7,12 +8,31 @@ namespace ValueTaskSupplement
 {
     public static partial class ValueTaskEx
     {
-        public static ValueTask<T> Lazy<T>(Func<ValueTask<T>> factory)
+        public static AsyncLazy<T> Lazy<T>(Func<ValueTask<T>> factory)
         {
-            return new ValueTask<T>(new AsyncLazySource<T>(factory), 0);
+            return new AsyncLazy<T>(factory);
+        }
+    }
+
+    public class AsyncLazy<T>
+    {
+        readonly ValueTask<T> innerTask;
+
+        public AsyncLazy(Func<ValueTask<T>> factory)
+        {
+            innerTask = new ValueTask<T>(new AsyncLazySource(factory), 0);
         }
 
-        class AsyncLazySource<T> : IValueTaskSource<T>
+        public ValueTask<T> AsValueTask() => innerTask;
+
+        public ValueTaskAwaiter<T> GetAwaiter() => innerTask.GetAwaiter();
+
+        public static implicit operator ValueTask<T>(AsyncLazy<T> source)
+        {
+            return source.AsValueTask();
+        }
+
+        class AsyncLazySource : IValueTaskSource<T>
         {
             static readonly ContextCallback execContextCallback = ExecutionContextCallback;
             static readonly SendOrPostCallback syncContextCallback = SynchronizationContextCallback;

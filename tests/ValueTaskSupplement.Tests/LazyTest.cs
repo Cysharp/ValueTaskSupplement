@@ -34,7 +34,7 @@ namespace ValueTaskSupplement.Tests
             var syncLazy = ValueTaskEx.Lazy(async () => { calledCount++; await Task.Delay(TimeSpan.FromSeconds(1)); return new object(); });
             calledCount.Should().Be(0);
 
-            var (v1, v2, v3) = await ValueTaskEx.WhenAll(syncLazy, syncLazy, syncLazy);
+            var (v1, v2, v3) = await ValueTaskEx.WhenAll(syncLazy.AsValueTask(), syncLazy.AsValueTask(), syncLazy.AsValueTask());
 
             calledCount.Should().Be(1);
 

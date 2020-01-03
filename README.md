@@ -30,8 +30,8 @@ async ValueTask Demo()
     var (hasLeftResult, value) = await ValueTaskEx.WhenAny(task1, Task.Delay(TimeSpan.FromSeconds(1)));
     if (!hasLeftResult) throw new TimeoutException();
 
-    // Lazy(called factory once and delayed) but you can use same type(ValueTask)
-    ValueTask<int> asyncLazy = ValueTaskEx.Lazy(async () => 9999);
+    // Lazy(called factory once and delayed)
+    AsyncLazy<int> asyncLazy = ValueTaskEx.Lazy(async () => 9999);
 }
 ```
 
@@ -81,8 +81,16 @@ Lazy
 ---
 
 ```csharp
-// Lazy is simlar as AsyncLazy<T> but returns ValueTask so it can store to field and use WhenAll simply.
-public static ValueTask<T> Lazy<T>(Func<ValueTask<T>> factory)
+// AsyncLazy<T> is similar to Lazy<T>, it can store in field
+// it await directly or can convert to ValueTask easily to use WhenAll.
+public static AsyncLazy<T> Lazy<T>(Func<ValueTask<T>> factory)
+
+public class AsyncLazy<T>
+{
+    public ValueTask<T> AsValueTask();
+    public ValueTaskAwaiter<T> GetAwaiter();   
+    public static implicit operator ValueTask<T>(AsyncLazy<T> source);
+}
 ```
 
 Factory
