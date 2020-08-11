@@ -1,10 +1,24 @@
+[![GitHub Actions](https://github.com/Cysharp/ValueTaskSupplement/workflows/Build-Debug/badge.svg)](https://github.com/Cysharp/ValueTaskSupplement/actions) [![Releases](https://img.shields.io/github/release/Cysharp/ValueTaskSupplement.svg)](https://github.com/Cysharp/ValueTaskSupplement/releases)
+
 ValueTaskSupplement
 ===
-[![CircleCI](https://circleci.com/gh/Cysharp/ValueTaskSupplement.svg?style=svg)](https://circleci.com/gh/Cysharp/ValueTaskSupplement)
 
 `ValueTask<T>` is a new standard of define async methods especially after being introduced `IValueTaskSource`. But it lacks utility like WhenAny, etc. ValueTaskSupplement appends supplemental methods(`WhenAny`, `WhenAll`, `Lazy`) to ValueTask and it is implemented by `IValueTaskSource` so fast and less allocation.
 
 > PM> Install-Package [ValueTaskSupplement](https://www.nuget.org/packages/ValueTaskSupplement)
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+## Table of Contents
+
+- [How to Use](#how-to-use)
+- [WhenAll](#whenall)
+- [WhenAny](#whenany)
+- [Lazy](#lazy)
+- [Factory](#factory)
+- [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 How to Use
 ---
