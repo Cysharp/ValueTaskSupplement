@@ -6,20 +6,12 @@
         <Nullable>enable</Nullable>
         <OutputType>Library</OutputType>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-        <Company>Cysharp</Company>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>1701;1702;1705;1591</NoWarn>
 
         <!-- NuGet -->
         <PackageId>ValueTaskSupplement</PackageId>
-        <PackageVersion>$(Version)</PackageVersion>
-        <Authors>Cysharp</Authors>
-        <Copyright>Cysharp</Copyright>
         <Description>Append supplemental methods(WhenAny, WhenAll, Lazy) to ValueTask.</Description>
-        <PackageProjectUrl>https://github.com/Cysharp/ValueTaskSupplement</PackageProjectUrl>
-        <RepositoryUrl>$(PackageProjectUrl)</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
-        <PackageTags>async</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
