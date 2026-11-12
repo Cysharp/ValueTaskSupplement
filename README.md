@@ -1,5 +1,5 @@
 > [!IMPORTANT]
-> .NET 11 supports [Runtime Async](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-11/runtime#runtime-async) feature so needs this helper for performance.
+> .NET 11 supports [Runtime Async](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-11/runtime#runtime-async) feature so no needs this helper for performance.
 
 [![GitHub Actions](https://github.com/Cysharp/ValueTaskSupplement/workflows/Build-Debug/badge.svg)](https://github.com/Cysharp/ValueTaskSupplement/actions) [![Releases](https://img.shields.io/github/release/Cysharp/ValueTaskSupplement.svg)](https://github.com/Cysharp/ValueTaskSupplement/releases)
 
